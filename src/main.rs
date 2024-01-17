@@ -51,7 +51,7 @@ fn main() -> io::Result<()> {
         render(&frame);
 
         // // render(&mut stdout);
-        thread::sleep(Duration::from_millis(100));
+        thread::sleep(Duration::from_millis(10));
     }
 
     // Cleanup
