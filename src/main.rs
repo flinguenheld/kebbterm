@@ -1,8 +1,14 @@
 use crossterm::{
-    self, cursor,
+    cursor,
     event::{self, Event, KeyCode},
-    style, terminal, ExecutableCommand, QueueableCommand,
+    terminal, ExecutableCommand,
 };
+use kebbterm::{
+    draw::{self, border, render},
+    frame::{new_frame, Drawable, Frame},
+    rocket::Rocket,
+};
+
 use std::{
     io::{self, Write},
     thread,
@@ -16,36 +22,35 @@ fn main() -> io::Result<()> {
     stdout.execute(terminal::EnterAlternateScreen)?;
     stdout.execute(cursor::Hide)?;
 
+    let mut rocket = Rocket::new();
+
+    // Better way to print border one time --
+    let mut frame = new_frame();
+    border(&frame);
+
+    // --
     'gameloop: loop {
+        let mut frame = new_frame();
+
         // Input
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
-                    KeyCode::Esc | KeyCode::Char('q') => {
+                    KeyCode::Esc => {
                         break 'gameloop;
                     }
-                    _ => {
-                        // println!("pouet");
-                        stdout
-                            .queue(style::SetBackgroundColor(style::Color::Green))
-                            .unwrap();
-                        stdout
-                            .queue(style::SetForegroundColor(style::Color::Black))
-                            .unwrap();
-                        for row in 0..25 {
-                            for col in 0..50 {
-                                stdout.queue(cursor::MoveTo(col, row)).unwrap();
-                                stdout.queue(style::Print("p")).unwrap();
-                            }
-                        }
-
-                        stdout.flush().unwrap();
-                    }
+                    _ => {}
                 }
             }
         }
 
-        // render(&mut stdout);
+        // Rocket --
+        rocket.run();
+        rocket.draw(&mut frame);
+
+        render(&frame);
+
+        // // render(&mut stdout);
         thread::sleep(Duration::from_millis(100));
     }
 
