@@ -4,13 +4,13 @@ use crossterm::{
     terminal, ExecutableCommand,
 };
 use kebbterm::{
-    draw::{self, border, render},
-    frame::{new_frame, Drawable, Frame},
+    draw::{border, render},
+    frame::{new_frame, Drawable},
     rocket::Rocket,
 };
 
 use std::{
-    io::{self, Write},
+    io::{self},
     thread,
     time::Duration,
 };
@@ -22,7 +22,9 @@ fn main() -> io::Result<()> {
     stdout.execute(terminal::EnterAlternateScreen)?;
     stdout.execute(cursor::Hide)?;
 
-    let mut rocket = Rocket::new();
+    let mut rockets: Vec<Rocket> = Vec::new();
+    rockets.push(Rocket::new());
+    // let mut rocket = Rocket::new();
 
     // Better way to print border one time --
     let mut frame = new_frame();
@@ -39,14 +41,22 @@ fn main() -> io::Result<()> {
                     KeyCode::Esc => {
                         break 'gameloop;
                     }
+                    KeyCode::Enter => {
+                        rockets.push(Rocket::new());
+                    }
                     _ => {}
                 }
             }
         }
 
         // Rocket --
-        rocket.run();
-        rocket.draw(&mut frame);
+        rockets.retain_mut(|r| !r.done());
+        rockets.iter_mut().for_each(|r| {
+            r.run();
+            r.draw(&mut frame)
+        });
+
+        // println!("pouet: {}", rockets.len());
 
         render(&frame);
 
