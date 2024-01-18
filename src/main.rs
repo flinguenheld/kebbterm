@@ -41,7 +41,7 @@ fn main() -> io::Result<()> {
                     KeyCode::Esc => {
                         break 'gameloop;
                     }
-                    KeyCode::Enter => {
+                    KeyCode::Enter | KeyCode::Char(' ') => {
                         rockets.push(Rocket::new());
                     }
                     _ => {}
@@ -49,7 +49,7 @@ fn main() -> io::Result<()> {
             }
         }
 
-        // Rocket --
+        // Rockets --
         rockets.retain_mut(|r| !r.done());
         rockets.iter_mut().for_each(|r| {
             r.run();

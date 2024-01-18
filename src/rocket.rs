@@ -4,11 +4,11 @@ use std::collections::VecDeque;
 use crate::frame::Drawable;
 use crate::{NUM_COLS, NUM_ROWS};
 
-const SPEED_MIN: f32 = 10.0;
+const SPEED_MIN: f32 = 10.0; // Randomise ?
 const SPEED_MAX: f32 = 30.0;
 
-const M: f32 = (SPEED_MIN - SPEED_MAX) / (NUM_ROWS as f32 - 2.0);
-const B: f32 = SPEED_MAX - M * 2.0;
+const M_SPEED: f32 = (SPEED_MIN - SPEED_MAX) / (NUM_ROWS as f32 - 2.0);
+const B_SPEED: f32 = SPEED_MAX - M_SPEED * 2.0;
 
 // #[derive(Copy, Clone)]
 struct Point {
@@ -22,6 +22,8 @@ pub struct Rocket {
     positions: VecDeque<Point>,
     end: usize,
     done: bool,
+
+    value: u32,
 }
 
 impl Rocket {
@@ -32,6 +34,8 @@ impl Rocket {
             positions: VecDeque::new(),
             end: rand::thread_rng().gen_range(3, 7),
             done: false,
+
+            value: 0,
         };
 
         rocket.positions.push_front(Point {
@@ -49,9 +53,10 @@ impl Rocket {
     pub fn run(&mut self) {
         if self.speed_count >= self.speed_value || self.speed_count == 0 {
             if let Some(current) = self.positions.front() {
-                self.speed_value = (M * current.y as f32 + B) as usize;
+                // Adapt speed
+                self.speed_value = (M_SPEED * current.y as f32 + B_SPEED) as usize;
 
-                // Done ?
+                // Is done ?
                 if current.y == self.end {
                     self.positions.pop_back();
                     self.speed_count = 1;
@@ -61,6 +66,11 @@ impl Rocket {
                         y: current.y - 1,
                         ..*current
                     };
+
+                    // Up value --
+                    let m: f32 = (self.end as f32 - NUM_ROWS as f32) / 10.0;
+                    let b: f32 = self.end as f32 - m * 10.0;
+                    self.value = ((current.y as f32 - b) / m) as u32;
 
                     match rand::thread_rng().gen_range(0, 4) {
                         0 => {
@@ -93,8 +103,7 @@ impl Rocket {
 impl Drawable for Rocket {
     fn draw(&self, frame: &mut crate::frame::Frame) {
         for pos in self.positions.iter() {
-            frame[pos.y][pos.x] = '0';
+            frame[pos.y][pos.x] = char::from_digit(self.value, 10).unwrap_or('9');
         }
-        // thread::sleep(Duration::from_millis(10000));
     }
 }
