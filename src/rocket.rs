@@ -52,6 +52,9 @@ impl Rocket {
     pub fn done(&self) -> bool {
         self.done
     }
+    pub fn set_done(&mut self) {
+        self.done = true;
+    }
 
     pub fn run(&mut self) {
         if self.speed_count >= self.speed_value || self.speed_count == 0 {
@@ -95,7 +98,7 @@ impl Rocket {
 
                     // Up the tail --
                     self.positions.push_front(new_position);
-                    if self.positions.len() > 3 {
+                    if self.positions.len() > 4 {
                         self.positions.pop_back();
                     }
                 }

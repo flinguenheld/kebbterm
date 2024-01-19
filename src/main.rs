@@ -44,6 +44,17 @@ fn main() -> io::Result<()> {
                     KeyCode::Enter | KeyCode::Char(' ') => {
                         rockets.push(Rocket::new());
                     }
+                    KeyCode::Char(val) if "0123456789".contains(val) => {
+                        println!("hep");
+
+                        rockets
+                            .iter_mut()
+                            .filter(|r| r.value() == val)
+                            .for_each(|r| r.set_done());
+
+                        // Explode
+                    }
+
                     _ => {}
                 }
             }
@@ -61,7 +72,7 @@ fn main() -> io::Result<()> {
         render(&frame);
 
         // // render(&mut stdout);
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_millis(20));
     }
 
     // Cleanup
