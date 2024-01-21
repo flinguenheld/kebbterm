@@ -1,9 +1,9 @@
-use crate::{NUM_COLS, NUM_ROWS};
+use crate::{NB_COLS, NB_ROWS};
 
-pub type Frame = [[char; NUM_COLS]; NUM_ROWS];
+pub type Frame = [[char; NB_COLS]; NB_ROWS];
 
 pub fn new_frame() -> Frame {
-    [[' '; NUM_COLS]; NUM_ROWS]
+    [[' '; NB_COLS]; NB_ROWS]
 }
 
 pub trait Drawable {

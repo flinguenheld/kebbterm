@@ -7,7 +7,9 @@ use kebbterm::{
     draw::{border, render},
     frame::{new_frame, Drawable},
     rocket::Rocket,
+    spark::Spark,
 };
+use rand::Rng;
 
 use std::{
     io::{self},
@@ -25,6 +27,16 @@ fn main() -> io::Result<()> {
     let mut rockets: Vec<Rocket> = Vec::new();
     rockets.push(Rocket::new());
     // let mut rocket = Rocket::new();
+
+    let mut sparks: Vec<Spark> = Vec::new();
+
+    // TODO Create a list of chars which are given to sparks
+    // let mut chars: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
+    // let mut chars: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
+    let mut chars: Vec<char> =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'"
+            .chars()
+            .collect();
 
     // Better way to print border one time --
     let mut frame = new_frame();
@@ -45,16 +57,37 @@ fn main() -> io::Result<()> {
                         rockets.push(Rocket::new());
                     }
                     KeyCode::Char(val) if "0123456789".contains(val) => {
-                        println!("hep");
+                        for rocket in rockets.iter_mut() {
+                            if rocket.value() == val {
+                                rocket.set_done();
 
-                        rockets
-                            .iter_mut()
-                            .filter(|r| r.value() == val)
-                            .for_each(|r| r.set_done());
+                                // Explode
+                                // Take n chars in the buffer and give them to a new spark
+                                if let Some(position) = rocket.position() {
+                                    if let Some(nb_chars) = rocket.value().to_digit(10) {
+                                        if nb_chars <= chars.len() as u32 {
+                                            let mut selected_chars = Vec::new();
 
-                        // Explode
+                                            for _ in 0..nb_chars {
+                                                selected_chars.push(chars.remove(
+                                                    rand::thread_rng().gen_range(0, chars.len()),
+                                                ));
+                                            }
+                                            sparks.push(Spark::new(*position, selected_chars));
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-
+                    KeyCode::Char(val) => {
+                        for spark in sparks.iter_mut() {
+                            if let Some(letter) = spark.check_value(&val) {
+                                chars.push(letter);
+                            }
+                            // TODO SCORE -1
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -64,15 +97,28 @@ fn main() -> io::Result<()> {
         rockets.retain_mut(|r| !r.done());
         rockets.iter_mut().for_each(|r| {
             r.run();
-            r.draw(&mut frame)
+            r.draw(&mut frame);
         });
 
-        // println!("pouet: {}", rockets.len());
+        // Sparks --
+        sparks.retain_mut(|s| {
+            if let Some(mut characters) = s.is_done() {
+                chars.append(&mut characters);
+                false
+            } else {
+                true
+            }
+        });
 
+        sparks.iter_mut().for_each(|s| {
+            s.run();
+            s.draw(&mut frame);
+        });
+
+        // --
         render(&frame);
 
-        // // render(&mut stdout);
-        thread::sleep(Duration::from_millis(20));
+        thread::sleep(Duration::from_millis(50));
     }
 
     // Cleanup

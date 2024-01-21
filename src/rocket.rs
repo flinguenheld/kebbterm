@@ -2,7 +2,7 @@ use rand::Rng;
 use std::collections::VecDeque;
 
 use crate::frame::Drawable;
-use crate::{Point, NUM_COLS, NUM_ROWS};
+use crate::{Point, NB_COLS, NB_ROWS};
 
 pub struct Rocket {
     speed_value: usize,
@@ -33,19 +33,22 @@ impl Rocket {
         };
 
         rocket.positions.push_front(Point {
-            x: rand::thread_rng().gen_range(7, NUM_COLS - 8), // TODO Adapt min/man ?
-            y: NUM_ROWS - 1,
+            x: rand::thread_rng().gen_range(7, NB_COLS - 8), // TODO Adapt min/man ?
+            y: NB_ROWS - 1,
         });
 
         // Speed --
         let speed_min = rand::thread_rng().gen_range(30.0, 35.0);
         let speed_max = rand::thread_rng().gen_range(18.0, 20.0);
-        rocket.speed_m = (speed_max - speed_min) / (NUM_ROWS as f32 - 2.0);
+        rocket.speed_m = (speed_max - speed_min) / (NB_ROWS as f32 - 2.0);
         rocket.speed_b = speed_max - rocket.speed_m * 2.0;
 
         rocket
     }
 
+    pub fn position(&self) -> Option<&Point> {
+        self.positions.front().clone() // TODO confirm clone
+    }
     pub fn value(&self) -> char {
         self.value
     }
@@ -74,27 +77,19 @@ impl Rocket {
                     };
 
                     // Up value --
-                    let m: f32 = (self.end_row as f32 - NUM_ROWS as f32) / 10.0;
+                    let m: f32 = (self.end_row as f32 - NB_ROWS as f32) / 10.0;
                     let b: f32 = self.end_row as f32 - m * 10.0;
                     self.value =
                         char::from_digit(((current.y as f32 - b) / m) as u32, 10).unwrap_or('9');
 
                     // Move --
                     match rand::thread_rng().gen_range(0, 4) {
-                        0 => {
-                            if new_position.x < NUM_COLS - 1 {
-                                new_position.x += 1
-                            }
-                        }
-                        1 => {
-                            if new_position.x > 0 {
-                                new_position.x -= 1
-                            }
-                        }
+                        0 => new_position.plus_x(),
+                        1 => new_position.minus_x(),
                         _ => {}
                     }
 
-                    self.speed_count = 0;
+                    self.speed_count = 1;
 
                     // Up the tail --
                     self.positions.push_front(new_position);
