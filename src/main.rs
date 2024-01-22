@@ -59,11 +59,10 @@ fn main() -> io::Result<()> {
                     KeyCode::Char(val) if "0123456789".contains(val) => {
                         for rocket in rockets.iter_mut() {
                             if rocket.value() == val {
-                                rocket.set_done();
-
                                 // Explode
                                 // Take n chars in the buffer and give them to a new spark
                                 if let Some(position) = rocket.position() {
+                                    println!("Explode !");
                                     if let Some(nb_chars) = rocket.value().to_digit(10) {
                                         if nb_chars <= chars.len() as u32 {
                                             let mut selected_chars = Vec::new();
@@ -77,6 +76,8 @@ fn main() -> io::Result<()> {
                                         }
                                     }
                                 }
+
+                                rocket.set_done();
                             }
                         }
                     }
@@ -118,7 +119,7 @@ fn main() -> io::Result<()> {
         // --
         render(&frame);
 
-        thread::sleep(Duration::from_millis(50));
+        thread::sleep(Duration::from_millis(2));
     }
 
     // Cleanup

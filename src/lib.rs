@@ -2,11 +2,12 @@ pub mod draw;
 pub mod frame;
 pub mod rocket;
 pub mod spark;
+pub mod tail;
 
-pub const NB_ROWS: usize = 20;
-pub const NB_COLS: usize = 80;
+pub const NB_ROWS: usize = 40;
+pub const NB_COLS: usize = 100;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Point {
     x: usize,
     y: usize,

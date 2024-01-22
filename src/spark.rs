@@ -1,13 +1,10 @@
-use crate::{frame::Drawable, Point};
+use crate::{frame::Drawable, tail::Tail, Point};
 use rand::Rng;
 
-const MAX_MOVES: u8 = 6;
-
-#[derive(Copy, Clone)]
+// #[derive(Copy, Clone)]
 struct Branch {
-    value: char,
     trajectory: u8,
-    position: Point,
+    tail: Tail,
 }
 
 /* Spark contains a group of Branches (9 maxi).
@@ -22,17 +19,19 @@ pub struct Spark {
 }
 
 impl Spark {
-    pub fn new(new_position: Point, chars: Vec<char>) -> Spark {
+    const MAX_MOVES: u8 = 15;
+
+    pub fn new(center: Point, chars: Vec<char>) -> Spark {
         let mut spark = Spark {
             branches: Vec::new(),
 
-            speed_value: 10,
+            speed_value: 80,
             speed_count: 0,
 
             nb_moves: 0,
         };
 
-        // Branches
+        // Create branches
         let mut buffer: Vec<u8> = (1..8).collect();
         for c in chars.iter() {
             // Use the center only with 9 branches
@@ -45,25 +44,25 @@ impl Spark {
             };
 
             spark.branches.push(Branch {
-                value: *c,
                 trajectory: traj,
-                position: new_position,
+                tail: Tail::new(*c, 3, center),
             });
         }
         spark
     }
 
     pub fn check_value(&mut self, val: &char) -> Option<char> {
-        if let Some(index) = self.branches.iter().position(|b| b.value == *val) {
-            Some(self.branches.remove(index).value)
+        // TODO: Don't remove it but set a 'done' in the tail
+        if let Some(index) = self.branches.iter().position(|b| b.tail.value == *val) {
+            Some(self.branches.remove(index).tail.value)
         } else {
             None
         }
     }
 
     pub fn is_done(&mut self) -> Option<Vec<char>> {
-        if self.nb_moves >= MAX_MOVES {
-            let chars = Some(self.branches.iter().map(|b| b.value).collect());
+        if self.nb_moves >= Spark::MAX_MOVES {
+            let chars = Some(self.branches.iter().map(|b| b.tail.value).collect());
             self.branches.clear();
             chars
         } else {
@@ -74,28 +73,35 @@ impl Spark {
     pub fn run(&mut self) {
         if self.speed_count == self.speed_value || self.speed_count == 0 {
             for branch in self.branches.iter_mut() {
-                match branch.trajectory {
-                    1 => branch.position.plus_x(),
-                    2 => {
-                        branch.position.plus_x();
-                        branch.position.plus_y();
+                if let Some(current) = branch.tail.current_position() {
+                    let mut new_position = Point { ..*current };
+
+                    match branch.trajectory {
+                        1 => new_position.plus_x(),
+                        2 => {
+                            new_position.plus_x();
+                            new_position.plus_y();
+                        }
+                        3 => new_position.plus_y(),
+                        4 => {
+                            new_position.minus_x();
+                            new_position.plus_y();
+                        }
+                        5 => new_position.minus_x(),
+                        6 => {
+                            new_position.minus_x();
+                            new_position.minus_y();
+                        }
+                        7 => new_position.minus_y(),
+                        8 => {
+                            new_position.plus_x();
+                            new_position.minus_y();
+                        }
+                        _ => {}
                     }
-                    3 => branch.position.plus_y(),
-                    4 => {
-                        branch.position.minus_x();
-                        branch.position.plus_y();
-                    }
-                    5 => branch.position.minus_x(),
-                    6 => {
-                        branch.position.minus_x();
-                        branch.position.minus_y();
-                    }
-                    7 => branch.position.minus_y(),
-                    8 => {
-                        branch.position.plus_x();
-                        branch.position.minus_y();
-                    }
-                    _ => {}
+
+                    // Up the tail --
+                    branch.tail.push(new_position);
                 }
             }
             self.nb_moves += 1;
@@ -108,7 +114,7 @@ impl Spark {
 impl Drawable for Spark {
     fn draw(&self, frame: &mut crate::frame::Frame) {
         for branch in self.branches.iter() {
-            frame[branch.position.y][branch.position.x] = branch.value;
+            branch.tail.draw(frame);
         }
     }
 }
