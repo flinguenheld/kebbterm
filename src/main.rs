@@ -34,7 +34,7 @@ fn main() -> io::Result<()> {
     // let mut chars: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
     // let mut chars: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
     let mut chars: Vec<char> =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'"
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'"
             .chars()
             .collect();
 
@@ -56,40 +56,13 @@ fn main() -> io::Result<()> {
                     KeyCode::Enter | KeyCode::Char(' ') => {
                         rockets.push(Rocket::new());
                     }
-                    KeyCode::Char(val) if "0123456789".contains(val) => {
-                        for rocket in rockets.iter_mut() {
-                            if rocket.value() == val {
-                                // Explode
-                                // Take n chars in the buffer and give them to a new spark
-                                if let Some(position) = rocket.position() {
-                                    println!("Explode !");
-                                    if let Some(nb_chars) = rocket.value().to_digit(10) {
-                                        if nb_chars <= chars.len() as u32 {
-                                            let mut selected_chars = Vec::new();
 
-                                            for _ in 0..nb_chars {
-                                                selected_chars.push(chars.remove(
-                                                    rand::thread_rng().gen_range(0, chars.len()),
-                                                ));
-                                            }
-                                            sparks.push(Spark::new(*position, selected_chars));
-                                        }
-                                    }
-                                }
-
-                                rocket.set_done();
-                            }
-                        }
-                    }
                     KeyCode::Char(val) => {
                         for spark in sparks.iter_mut() {
                             if spark.check_value(&val) {
 
                                 // TODO SCORE -1
                             }
-                            // if let Some(letter) = spark.check_value(&val) {
-                            //     chars.push(letter);
-                            // }
                         }
                     }
                     _ => {}
@@ -98,7 +71,18 @@ fn main() -> io::Result<()> {
         }
 
         // Rockets --
-        rockets.retain_mut(|r| !r.done());
+        for rocket in rockets.iter_mut() {
+            if rocket.exploded() {
+                let mut selected_chars = Vec::new();
+
+                for _ in 0..rand::thread_rng().gen_range(3, 10) {
+                    selected_chars.push(chars.remove(rand::thread_rng().gen_range(0, chars.len())));
+                }
+                sparks.push(Spark::new(*rocket.position().unwrap(), selected_chars));
+            }
+        }
+
+        rockets.retain_mut(|r| !r.exploded());
         rockets.iter_mut().for_each(|r| {
             r.run();
             r.draw(&mut frame);

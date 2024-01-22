@@ -4,7 +4,7 @@ use crate::{Point, NB_COLS, NB_ROWS};
 use rand::Rng;
 
 /*
- *
+ * See the yellow !
  */
 pub struct Rocket {
     tail: Tail,
@@ -14,18 +14,17 @@ pub struct Rocket {
     speed_m: f32,
     speed_b: f32,
 
-    end_row: usize,
+    explosion_row: usize,
 }
 
 impl Rocket {
     pub fn new() -> Rocket {
         let mut rocket = Rocket {
             tail: Tail::new(
-                '0',
+                '∆',
                 5,
                 Point {
-                    // TODO Adapt min/man ?
-                    x: rand::thread_rng().gen_range(7, NB_COLS - 8),
+                    x: rand::thread_rng().gen_range(10, NB_COLS - 10),
                     y: NB_ROWS - 1,
                 },
                 vec![220, 222, 223, 248, 241],
@@ -36,14 +35,12 @@ impl Rocket {
             speed_m: 0.0, // Speed equation
             speed_b: 0.0,
 
-            end_row: rand::thread_rng().gen_range(3, 7),
+            explosion_row: rand::thread_rng().gen_range(8, NB_ROWS - 15),
         };
 
         // Speed --
-        let speed_min = rand::thread_rng().gen_range(70.0, 80.0);
-        let speed_max = rand::thread_rng().gen_range(40.0, 50.0);
-        // let speed_min = rand::thread_rng().gen_range(30.0, 35.0);
-        // let speed_max = rand::thread_rng().gen_range(18.0, 20.0);
+        let speed_min = rand::thread_rng().gen_range(70.0, 85.0);
+        let speed_max = rand::thread_rng().gen_range(35.0, 50.0);
         rocket.speed_m = (speed_max - speed_min) / (NB_ROWS as f32 - 2.0);
         rocket.speed_b = speed_max - rocket.speed_m * 2.0;
 
@@ -53,14 +50,13 @@ impl Rocket {
     pub fn position(&self) -> Option<&Point> {
         self.tail.current_position()
     }
-    pub fn value(&self) -> char {
-        self.tail.value
-    }
-    pub fn done(&self) -> bool {
-        self.tail.is_empty()
-    }
-    pub fn set_done(&mut self) {
-        self.tail.clear();
+
+    pub fn exploded(&self) -> bool {
+        if let Some(position) = self.tail.current_position() {
+            position.y <= self.explosion_row
+        } else {
+            false
+        }
     }
 
     pub fn run(&mut self) {
@@ -69,32 +65,20 @@ impl Rocket {
                 // Adapt speed --
                 self.speed_value = (self.speed_m * current.y as f32 + self.speed_b) as usize;
 
-                // Is done ? (will be 'done' when tail is empty)
-                if current.y == self.end_row {
-                    self.tail.pop();
-                    self.speed_count = 1;
-                } else {
-                    let mut new_position = Point {
-                        y: current.y - 1,
-                        ..*current
-                    };
+                let mut new_position = Point {
+                    y: current.y - 1,
+                    ..*current
+                };
 
-                    // Up tail's value --
-                    let m: f32 = (self.end_row as f32 - NB_ROWS as f32) / 10.0;
-                    let b: f32 = self.end_row as f32 - m * 10.0;
-                    self.tail.value =
-                        char::from_digit(((current.y as f32 - b) / m) as u32, 10).unwrap_or('9');
-
-                    // Set next position --
-                    match rand::thread_rng().gen_range(0, 4) {
-                        0 => new_position.plus_x(),
-                        1 => new_position.minus_x(),
-                        _ => {}
-                    }
-
-                    self.tail.push(new_position);
-                    self.speed_count = 1;
+                // Set optional x --
+                match rand::thread_rng().gen_range(0, 4) {
+                    0 => new_position.plus_x(),
+                    1 => new_position.minus_x(),
+                    _ => {}
                 }
+
+                self.tail.push(new_position);
+                self.speed_count = 1;
             }
         }
         self.speed_count += 1;
