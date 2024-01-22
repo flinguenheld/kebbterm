@@ -5,9 +5,11 @@ use rand::Rng;
 struct Branch {
     trajectory: u8,
     tail: Tail,
+    is_done: bool,
 }
 
-/* Spark contains a group of Branches (9 maxi).
+/*
+ * Spark contains a group of Branches (9 maxi).
  * It allows to move and display them.
  */
 pub struct Spark {
@@ -15,24 +17,24 @@ pub struct Spark {
     speed_value: usize,
     speed_count: usize,
 
+    max_moves: u8,
     nb_moves: u8,
 }
 
 impl Spark {
-    const MAX_MOVES: u8 = 15;
-
     pub fn new(center: Point, chars: Vec<char>) -> Spark {
         let mut spark = Spark {
             branches: Vec::new(),
 
-            speed_value: 80,
+            speed_value: 60,
             speed_count: 0,
 
+            max_moves: 13,
             nb_moves: 0,
         };
 
         // Create branches
-        let mut buffer: Vec<u8> = (1..8).collect();
+        let mut buffer: Vec<u8> = (1..9).collect();
         for c in chars.iter() {
             // Use the center only with 9 branches
             let traj = {
@@ -45,26 +47,37 @@ impl Spark {
 
             spark.branches.push(Branch {
                 trajectory: traj,
-                tail: Tail::new(*c, 3, center),
+                tail: Tail::new(*c, 3, center, vec![202, 208, 242]),
+                is_done: false,
             });
         }
         spark
     }
 
-    pub fn check_value(&mut self, val: &char) -> Option<char> {
+    pub fn check_value(&mut self, val: &char) -> bool {
         // TODO: Don't remove it but set a 'done' in the tail
-        if let Some(index) = self.branches.iter().position(|b| b.tail.value == *val) {
-            Some(self.branches.remove(index).tail.value)
-        } else {
-            None
-        }
+
+        self.branches
+            .iter_mut()
+            .filter(|b| b.tail.value == *val)
+            .map(|b| {
+                b.is_done = true;
+                b.tail.set_color(vec![76, 70, 28]);
+            })
+            .count()
+            == 1
     }
 
+    /*
+     * Check if all tails are done
+     */
     pub fn is_done(&mut self) -> Option<Vec<char>> {
-        if self.nb_moves >= Spark::MAX_MOVES {
-            let chars = Some(self.branches.iter().map(|b| b.tail.value).collect());
-            self.branches.clear();
-            chars
+        if self
+            .branches
+            .iter()
+            .all(|b| b.is_done == true && b.tail.is_empty())
+        {
+            Some(self.branches.iter().map(|b| b.tail.value).collect())
         } else {
             None
         }
@@ -73,37 +86,46 @@ impl Spark {
     pub fn run(&mut self) {
         if self.speed_count == self.speed_value || self.speed_count == 0 {
             for branch in self.branches.iter_mut() {
-                if let Some(current) = branch.tail.current_position() {
-                    let mut new_position = Point { ..*current };
+                if self.nb_moves >= self.max_moves && branch.is_done == false {
+                    branch.is_done = true;
+                    // TODO up colours ?
+                }
 
-                    match branch.trajectory {
-                        1 => new_position.plus_x(),
-                        2 => {
-                            new_position.plus_x();
-                            new_position.plus_y();
+                if branch.is_done == true {
+                    branch.tail.pop();
+                } else {
+                    if let Some(current) = branch.tail.current_position() {
+                        let mut new_position = Point { ..*current };
+
+                        match branch.trajectory {
+                            1 => new_position.plus_x(),
+                            2 => {
+                                new_position.plus_x();
+                                new_position.plus_y();
+                            }
+                            3 => new_position.plus_y(),
+                            4 => {
+                                new_position.minus_x();
+                                new_position.plus_y();
+                            }
+                            5 => new_position.minus_x(),
+                            6 => {
+                                new_position.minus_x();
+                                new_position.minus_y();
+                            }
+                            7 => new_position.minus_y(),
+                            8 => {
+                                new_position.plus_x();
+                                new_position.minus_y();
+                            }
+                            _ => {}
                         }
-                        3 => new_position.plus_y(),
-                        4 => {
-                            new_position.minus_x();
-                            new_position.plus_y();
-                        }
-                        5 => new_position.minus_x(),
-                        6 => {
-                            new_position.minus_x();
-                            new_position.minus_y();
-                        }
-                        7 => new_position.minus_y(),
-                        8 => {
-                            new_position.plus_x();
-                            new_position.minus_y();
-                        }
-                        _ => {}
+
+                        branch.tail.push(new_position);
                     }
-
-                    // Up the tail --
-                    branch.tail.push(new_position);
                 }
             }
+
             self.nb_moves += 1;
             self.speed_count = 1;
         }

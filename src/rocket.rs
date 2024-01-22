@@ -22,12 +22,13 @@ impl Rocket {
         let mut rocket = Rocket {
             tail: Tail::new(
                 '0',
-                4,
+                5,
                 Point {
                     // TODO Adapt min/man ?
                     x: rand::thread_rng().gen_range(7, NB_COLS - 8),
                     y: NB_ROWS - 1,
                 },
+                vec![220, 222, 223, 248, 241],
             ),
 
             speed_value: 10,
@@ -38,14 +39,9 @@ impl Rocket {
             end_row: rand::thread_rng().gen_range(3, 7),
         };
 
-        rocket.tail.push(Point {
-            x: rand::thread_rng().gen_range(7, NB_COLS - 8), // TODO Adapt min/man ?
-            y: NB_ROWS - 1,
-        });
-
         // Speed --
-        let speed_min = rand::thread_rng().gen_range(100.0, 120.0);
-        let speed_max = rand::thread_rng().gen_range(70.0, 80.0);
+        let speed_min = rand::thread_rng().gen_range(70.0, 80.0);
+        let speed_max = rand::thread_rng().gen_range(40.0, 50.0);
         // let speed_min = rand::thread_rng().gen_range(30.0, 35.0);
         // let speed_max = rand::thread_rng().gen_range(18.0, 20.0);
         rocket.speed_m = (speed_max - speed_min) / (NB_ROWS as f32 - 2.0);

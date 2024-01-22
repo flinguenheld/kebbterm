@@ -1,9 +1,19 @@
 use crate::{NB_COLS, NB_ROWS};
+use crossterm::style;
 
-pub type Frame = [[char; NB_COLS]; NB_ROWS];
+#[derive(Copy, Clone)]
+pub struct FrameCase {
+    pub value: char,
+    pub fore_color: style::Color,
+}
+
+pub type Frame = [[FrameCase; NB_COLS]; NB_ROWS];
 
 pub fn new_frame() -> Frame {
-    [[' '; NB_COLS]; NB_ROWS]
+    [[FrameCase {
+        value: ' ',
+        fore_color: style::Color::White,
+    }; NB_COLS]; NB_ROWS]
 }
 
 pub trait Drawable {

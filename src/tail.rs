@@ -1,3 +1,5 @@
+use crossterm::style;
+
 use crate::{frame::Drawable, Point};
 use std::collections::VecDeque;
 
@@ -9,14 +11,18 @@ pub struct Tail {
     pub value: char,
     positions: VecDeque<Point>,
     length: usize,
+
+    // colors: Vec<style::Color>,
+    colors: Vec<u8>,
 }
 
 impl Tail {
-    pub fn new(new_value: char, new_length: usize, first_position: Point) -> Tail {
+    pub fn new(new_value: char, new_length: usize, first_position: Point, new_colors: Vec<u8>) -> Tail {
         Tail {
             value: new_value,
             positions: VecDeque::from([first_position]),
             length: new_length,
+            colors: new_colors,
         }
     }
 
@@ -25,6 +31,10 @@ impl Tail {
         if self.positions.len() > self.length {
             self.positions.pop_back();
         }
+    }
+
+    pub fn set_color(&mut self, new_colors: Vec<u8>) {
+        self.colors = new_colors
     }
 
     pub fn current_position(&self) -> Option<&Point> {
@@ -46,8 +56,10 @@ impl Tail {
 
 impl Drawable for Tail {
     fn draw(&self, frame: &mut crate::frame::Frame) {
-        for pos in self.positions.iter() {
-            frame[pos.y][pos.x] = self.value;
+        for iter in self.positions.iter().rev().zip(self.colors.iter().rev())
+        {
+            frame[iter.0.y][iter.0.x].value = self.value;
+            frame[iter.0.y][iter.0.x].fore_color = style::Color::AnsiValue(*iter.1);
         }
     }
 }

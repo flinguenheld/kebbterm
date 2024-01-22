@@ -6,17 +6,18 @@ use crate::frame::Frame;
 pub fn render(frame: &Frame) {
     let mut stdout = io::stdout();
     stdout
-        .queue(style::SetBackgroundColor(style::Color::Green))
-        .unwrap();
-    stdout
-        .queue(style::SetForegroundColor(style::Color::Black))
+        // .queue(style::SetBackgroundColor(style::Color::Black))
+        .queue(style::SetAttribute(style::Attribute::Bold))
         .unwrap();
     for row in 1..frame.len() {
         for col in 1..frame[0].len() {
             stdout
+                .queue(style::SetForegroundColor(frame[row][col].fore_color))
+                .unwrap();
+            stdout
                 .queue(cursor::MoveTo(col as u16, row as u16))
                 .unwrap();
-            stdout.queue(style::Print(frame[row][col])).unwrap();
+            stdout.queue(style::Print(frame[row][col].value)).unwrap();
         }
     }
 

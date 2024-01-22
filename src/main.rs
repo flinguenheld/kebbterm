@@ -83,10 +83,13 @@ fn main() -> io::Result<()> {
                     }
                     KeyCode::Char(val) => {
                         for spark in sparks.iter_mut() {
-                            if let Some(letter) = spark.check_value(&val) {
-                                chars.push(letter);
+                            if spark.check_value(&val) {
+
+                                // TODO SCORE -1
                             }
-                            // TODO SCORE -1
+                            // if let Some(letter) = spark.check_value(&val) {
+                            //     chars.push(letter);
+                            // }
                         }
                     }
                     _ => {}
