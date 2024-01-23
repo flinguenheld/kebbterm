@@ -1,4 +1,5 @@
-use crate::{frame::Drawable, tail::Tail, Point};
+use crate::geometry::{Point, Speed};
+use crate::{frame::Drawable, tail::Tail};
 use rand::Rng;
 
 // #[derive(Copy, Clone)]
@@ -14,8 +15,7 @@ struct Branch {
  */
 pub struct Spark {
     branches: Vec<Branch>,
-    speed_value: usize,
-    speed_count: usize,
+    speed: Speed,
 
     max_moves: u8,
     nb_moves: u8,
@@ -26,11 +26,21 @@ impl Spark {
         let mut spark = Spark {
             branches: Vec::new(),
 
-            speed_value: 60,
-            speed_count: 0,
-
-            max_moves: 13,
+            max_moves: 8, // Adapt with speed
             nb_moves: 0,
+
+            speed: Speed::new(
+                Point {
+                    // Fast on start
+                    x: rand::thread_rng().gen_range(10, 15),
+                    y: 2,
+                },
+                Point {
+                    // Slow at the end
+                    x: rand::thread_rng().gen_range(110, 130),
+                    y: 8,
+                },
+            ),
         };
 
         // Create branches
@@ -47,7 +57,8 @@ impl Spark {
 
             spark.branches.push(Branch {
                 trajectory: traj,
-                tail: Tail::new(*c, 3, center, vec![202, 208, 242]),
+                // tail: Tail::new(*c, 3, center, vec![202, 208, 242]),
+                tail: Tail::new(*c, 3, center, vec![208, 202, 242]),
                 is_done: false,
             });
         }
@@ -84,8 +95,11 @@ impl Spark {
     }
 
     pub fn run(&mut self) {
-        if self.speed_count == self.speed_value || self.speed_count == 0 {
+        if self.speed.reached() {
+            self.speed.up_by_x(self.nb_moves as f32);
+
             for branch in self.branches.iter_mut() {
+                // End of time --
                 if self.nb_moves >= self.max_moves && branch.is_done == false {
                     branch.is_done = true;
                     // TODO up colours ?
@@ -127,9 +141,8 @@ impl Spark {
             }
 
             self.nb_moves += 1;
-            self.speed_count = 1;
         }
-        self.speed_count += 1;
+        self.speed.up_tick();
     }
 }
 

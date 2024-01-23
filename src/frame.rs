@@ -1,4 +1,4 @@
-use crate::{NB_COLS, NB_ROWS};
+use crate::geometry::{NB_COLS, NB_ROWS};
 use crossterm::style;
 
 #[derive(Copy, Clone)]

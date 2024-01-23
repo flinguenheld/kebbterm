@@ -1,7 +1,6 @@
 use crate::frame::Drawable;
-use crate::speed::Speed;
+use crate::geometry::{Point, Speed, NB_COLS, NB_ROWS};
 use crate::tail::Tail;
-use crate::{Point, NB_COLS, NB_ROWS};
 use rand::Rng;
 
 /*
