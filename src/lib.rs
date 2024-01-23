@@ -2,6 +2,7 @@ pub mod draw;
 pub mod frame;
 pub mod rocket;
 pub mod spark;
+pub mod speed;
 pub mod tail;
 
 pub const NB_ROWS: usize = 40;

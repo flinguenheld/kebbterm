@@ -73,12 +73,16 @@ fn main() -> io::Result<()> {
         // Rockets --
         for rocket in rockets.iter_mut() {
             if rocket.exploded() {
-                let mut selected_chars = Vec::new();
+                let nb_chars = rand::thread_rng().gen_range(3, 10);
+                if nb_chars <= chars.len() {
+                    let mut selected_chars = Vec::new();
 
-                for _ in 0..rand::thread_rng().gen_range(3, 10) {
-                    selected_chars.push(chars.remove(rand::thread_rng().gen_range(0, chars.len())));
+                    for _ in 0..nb_chars {
+                        selected_chars
+                            .push(chars.remove(rand::thread_rng().gen_range(0, chars.len())));
+                    }
+                    sparks.push(Spark::new(*rocket.position().unwrap(), selected_chars));
                 }
-                sparks.push(Spark::new(*rocket.position().unwrap(), selected_chars));
             }
         }
 

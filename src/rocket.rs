@@ -1,4 +1,5 @@
 use crate::frame::Drawable;
+use crate::speed::Speed;
 use crate::tail::Tail;
 use crate::{Point, NB_COLS, NB_ROWS};
 use rand::Rng;
@@ -8,18 +9,14 @@ use rand::Rng;
  */
 pub struct Rocket {
     tail: Tail,
-
-    speed_value: usize,
-    speed_count: usize,
-    speed_m: f32,
-    speed_b: f32,
+    speed: Speed,
 
     explosion_row: usize,
 }
 
 impl Rocket {
     pub fn new() -> Rocket {
-        let mut rocket = Rocket {
+        let rocket = Rocket {
             tail: Tail::new(
                 '∆',
                 5,
@@ -30,19 +27,21 @@ impl Rocket {
                 vec![220, 222, 223, 248, 241],
             ),
 
-            speed_value: 10,
-            speed_count: 0,
-            speed_m: 0.0, // Speed equation
-            speed_b: 0.0,
+            speed: Speed::new(
+                Point {
+                    // Fast at the bottom
+                    x: rand::thread_rng().gen_range(12, 20),
+                    y: NB_ROWS - 1,
+                },
+                Point {
+                    // Slow at the top
+                    x: rand::thread_rng().gen_range(70, 85),
+                    y: 2,
+                },
+            ),
 
             explosion_row: rand::thread_rng().gen_range(8, NB_ROWS - 15),
         };
-
-        // Speed --
-        let speed_min = rand::thread_rng().gen_range(70.0, 85.0);
-        let speed_max = rand::thread_rng().gen_range(35.0, 50.0);
-        rocket.speed_m = (speed_max - speed_min) / (NB_ROWS as f32 - 2.0);
-        rocket.speed_b = speed_max - rocket.speed_m * 2.0;
 
         rocket
     }
@@ -60,10 +59,10 @@ impl Rocket {
     }
 
     pub fn run(&mut self) {
-        if self.speed_count >= self.speed_value || self.speed_count == 0 {
+        if self.speed.reached() {
             if let Some(current) = self.tail.current_position() {
                 // Adapt speed --
-                self.speed_value = (self.speed_m * current.y as f32 + self.speed_b) as usize;
+                self.speed.up_by_x(current.y as f32);
 
                 let mut new_position = Point {
                     y: current.y - 1,
@@ -78,10 +77,9 @@ impl Rocket {
                 }
 
                 self.tail.push(new_position);
-                self.speed_count = 1;
             }
         }
-        self.speed_count += 1;
+        self.speed.up_tick();
     }
 }
 
