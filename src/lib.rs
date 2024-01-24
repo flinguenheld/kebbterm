@@ -1,4 +1,5 @@
 pub mod draw;
+pub mod flare;
 pub mod frame;
 pub mod geometry;
 pub mod rocket;

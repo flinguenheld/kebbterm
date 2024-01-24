@@ -57,6 +57,10 @@ impl Tail {
     pub fn clear(&mut self) {
         self.positions.clear();
     }
+
+    // pub fn get_char_back(&mut self) -> char {
+    //     self.value
+    // }
 }
 
 impl Drawable for Tail {
