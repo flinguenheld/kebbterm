@@ -1,6 +1,7 @@
-use crate::frame::Drawable;
+use crate::firework::tail::Tail;
+use crate::firework::Run;
 use crate::geometry::{Point, Speed, NB_COLS, NB_ROWS};
-use crate::tail::Tail;
+use crate::render::frame::{Drawable, Frame};
 use rand::Rng;
 
 /*
@@ -29,7 +30,7 @@ impl Rocket {
             speed: Speed::new(
                 Point {
                     // Fast at the bottom
-                    x: rand::thread_rng().gen_range(12, 20),
+                    x: rand::thread_rng().gen_range(8, 12),
                     y: NB_ROWS - 1,
                 },
                 Point {
@@ -39,7 +40,7 @@ impl Rocket {
                 },
             ),
 
-            explosion_row: rand::thread_rng().gen_range(8, NB_ROWS - 15),
+            explosion_row: rand::thread_rng().gen_range(8, NB_ROWS / 2),
         };
 
         rocket
@@ -56,8 +57,10 @@ impl Rocket {
             false
         }
     }
+}
 
-    pub fn run(&mut self) {
+impl Run for Rocket {
+    fn run(&mut self) {
         if self.speed.reached() {
             if let Some(current) = self.tail.current_position() {
                 // Adapt speed --
@@ -83,7 +86,7 @@ impl Rocket {
 }
 
 impl Drawable for Rocket {
-    fn draw(&self, frame: &mut crate::frame::Frame) {
+    fn draw(&self, frame: &mut Frame) {
         self.tail.draw(frame);
     }
 }

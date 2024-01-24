@@ -1,21 +1,27 @@
 use crate::{
-    frame::Drawable,
+    firework::tail::Tail,
+    firework::Run,
     geometry::{Point, Speed, NB_ROWS},
-    tail::Tail,
+    render::frame::{Drawable, Frame},
 };
 use rand::Rng;
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------ GroundFlare ---
+/*
+ * From a given stock of chars, this struct launches a randomised amount of Flares.
+ * Each flares are started regulary and each char is recovered at the flare remove.
+ * Once the amount is reached, use the function 'is_done' to get the chars back.
+ */
 pub struct GroundFlare {
     flares: Vec<Flare>,
     chars: Vec<char>,
 
-    count: u32,
-    count_step: u32,
+    loop_counter: u32,
+    loop_counter_step: u32,
 
-    total_count: u8,
-    total_flares: u8,
+    flare_counter: u8,
+    flare_total: u8,
     position_x: usize,
 }
 
@@ -25,43 +31,43 @@ impl GroundFlare {
             flares: Vec::new(),
             chars: characters,
 
-            count: 0,
-            count_step: rand::thread_rng().gen_range(120, 160),
+            loop_counter: 0,
+            loop_counter_step: rand::thread_rng().gen_range(100, 150),
             position_x: position,
 
-            total_count: 0,
-            total_flares: rand::thread_rng().gen_range(25, 40),
+            flare_counter: 0,
+            flare_total: rand::thread_rng().gen_range(25, 40),
         };
 
         ground_flare
     }
+
     pub fn check_value(&mut self, val: &char) -> bool {
         for f in self.flares.iter_mut() {
-            if f.valid(val) == true {
+            if f.check_value(val) == true {
                 return true;
             }
         }
         return false;
     }
 
+    // Useful in main to take GroundFlares away.
     pub fn position_x(&self) -> usize {
         self.position_x
     }
+}
 
-    pub fn is_done(&mut self) -> Option<Vec<char>> {
+impl Run for GroundFlare {
+    fn is_done(&self) -> Option<Vec<char>> {
         if self.flares.is_empty() {
-            dbg!(self.chars.len());
             Some(self.chars.clone())
-            // Some(self.flares.iter().map(|b| b.tail.value).collect())
         } else {
             None
         }
     }
 
-    pub fn run(&mut self) {
-        // Launch flares one by one
-
-        // Get back char from its tail
+    fn run(&mut self) {
+        // Remove ended tails and get their char back.
         self.flares.retain(|f| {
             if f.is_done() {
                 self.chars.push(f.tail.value);
@@ -73,10 +79,10 @@ impl GroundFlare {
 
         // Put char in tail
         // Force the first
-        if (self.count == self.count_step
-            && self.total_count < self.total_flares
+        if (self.loop_counter == self.loop_counter_step
+            && self.flare_counter < self.flare_total
             && !self.chars.is_empty())
-            || self.count == 0
+            || self.flare_counter == 0
         {
             self.flares.push(Flare::new(
                 self.position_x,
@@ -84,10 +90,10 @@ impl GroundFlare {
                     .remove(rand::thread_rng().gen_range(0, self.chars.len())),
             ));
 
-            self.count = 1;
-            self.total_count += 1;
+            self.loop_counter = 1;
+            self.flare_counter += 1;
         }
-        self.count += 1;
+        self.loop_counter += 1;
 
         // --
         for f in &mut self.flares {
@@ -97,7 +103,10 @@ impl GroundFlare {
 }
 
 impl Drawable for GroundFlare {
-    fn draw(&self, frame: &mut crate::frame::Frame) {
+    fn draw(&self, frame: &mut Frame) {
+        // frame[NB_ROWS - 1][self.position_x].value = '🭩';
+        // frame[NB_ROWS - 1][self.position_x].fore_color = style::Color::AnsiValue(240);
+
         for f in &self.flares {
             f.draw(frame);
         }
@@ -106,8 +115,11 @@ impl Drawable for GroundFlare {
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Flare ---
+/*
+ * A Flare is a tail with specifics parameters (speed, direction ...).
+ * Only useful with GroundFlare.
+ */
 struct Flare {
-    position: usize,
     done: bool,
     tail: Tail,
     speed: Speed,
@@ -118,7 +130,6 @@ struct Flare {
 impl Flare {
     fn new(new_position: usize, value: char) -> Flare {
         Flare {
-            position: new_position,
             done: false,
             tail: Tail::new(
                 value,
@@ -130,7 +141,8 @@ impl Flare {
                 vec![207, 212, 219, 248, 241],
             ),
 
-            max_row: rand::thread_rng().gen_range(NB_ROWS / 3, NB_ROWS / 2),
+            max_row: rand::thread_rng()
+                .gen_range(NB_ROWS / 2 + NB_ROWS / 10, NB_ROWS / 2 + NB_ROWS / 5),
 
             speed: Speed::new(
                 Point {
@@ -147,7 +159,7 @@ impl Flare {
         }
     }
 
-    fn valid(&mut self, value: &char) -> bool {
+    fn check_value(&mut self, value: &char) -> bool {
         if self.tail.value == *value {
             self.speed.up_by_x((NB_ROWS - 3) as f32);
             self.done = true;
@@ -190,9 +202,7 @@ impl Flare {
 }
 
 impl Drawable for Flare {
-    fn draw(&self, frame: &mut crate::frame::Frame) {
-        frame[NB_ROWS - 1][self.position].value = 'F';
-
+    fn draw(&self, frame: &mut Frame) {
         self.tail.draw(frame);
     }
 }

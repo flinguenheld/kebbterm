@@ -1,5 +1,7 @@
+use crate::firework::Run;
 use crate::geometry::{Point, Speed};
-use crate::{frame::Drawable, tail::Tail};
+use crate::render::frame::Frame;
+use crate::{firework::tail::Tail, render::frame::Drawable};
 use rand::Rng;
 
 // #[derive(Copy, Clone)]
@@ -57,7 +59,6 @@ impl Spark {
 
             spark.branches.push(Branch {
                 trajectory: traj,
-                // tail: Tail::new(*c, 3, center, vec![202, 208, 242]),
                 tail: Tail::new(*c, 3, center, vec![208, 202, 242]),
                 is_done: false,
             });
@@ -78,11 +79,12 @@ impl Spark {
             .count()
             == 1
     }
-
+}
+impl Run for Spark {
     /*
      * Check if all tails are done
      */
-    pub fn is_done(&mut self) -> Option<Vec<char>> {
+    fn is_done(&self) -> Option<Vec<char>> {
         if self
             .branches
             .iter()
@@ -94,7 +96,7 @@ impl Spark {
         }
     }
 
-    pub fn run(&mut self) {
+    fn run(&mut self) {
         if self.speed.reached() {
             self.speed.up_by_x(self.nb_moves as f32);
 
@@ -147,7 +149,7 @@ impl Spark {
 }
 
 impl Drawable for Spark {
-    fn draw(&self, frame: &mut crate::frame::Frame) {
+    fn draw(&self, frame: &mut Frame) {
         for branch in self.branches.iter() {
             branch.tail.draw(frame);
         }

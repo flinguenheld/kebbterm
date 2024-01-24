@@ -1,5 +1,5 @@
-use crate::frame::Drawable;
 use crate::geometry::Point;
+use crate::render::frame::{Drawable, Frame};
 use crossterm::style;
 use std::collections::VecDeque;
 
@@ -57,14 +57,10 @@ impl Tail {
     pub fn clear(&mut self) {
         self.positions.clear();
     }
-
-    // pub fn get_char_back(&mut self) -> char {
-    //     self.value
-    // }
 }
 
 impl Drawable for Tail {
-    fn draw(&self, frame: &mut crate::frame::Frame) {
+    fn draw(&self, frame: &mut Frame) {
         for iter in self.positions.iter().rev().zip(self.colors.iter().rev()) {
             frame[iter.0.y][iter.0.x].value = self.value;
             frame[iter.0.y][iter.0.x].fore_color = style::Color::AnsiValue(*iter.1);

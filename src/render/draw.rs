@@ -1,7 +1,6 @@
+use crate::render::frame::Frame;
 use crossterm::{cursor, style, QueueableCommand};
 use std::io::{self, Write};
-
-use crate::frame::Frame;
 
 pub fn render(frame: &Frame) {
     let mut stdout = io::stdout();

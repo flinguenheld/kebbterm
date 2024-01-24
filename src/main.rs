@@ -4,12 +4,13 @@ use crossterm::{
     terminal, ExecutableCommand,
 };
 use kebbterm::{
-    draw::{border, render},
-    flare::GroundFlare,
-    frame::{new_frame, Drawable},
+    firework::flare::GroundFlare,
+    firework::rocket::Rocket,
+    firework::spark::Spark,
+    firework::Run,
     geometry::NB_COLS,
-    rocket::Rocket,
-    spark::Spark,
+    render::draw::{border, render},
+    render::frame::{new_frame, Drawable, Frame},
 };
 use rand::Rng;
 
@@ -18,18 +19,6 @@ use std::{
     thread,
     time::Duration,
 };
-
-fn take_chars(chars: &mut Vec<char>, amount: usize) -> Option<Vec<char>> {
-    if amount <= chars.len() {
-        Some(
-            (0..amount)
-                .map(|_| chars.remove(rand::thread_rng().gen_range(0, chars.len())))
-                .collect(),
-        )
-    } else {
-        None
-    }
-}
 
 fn main() -> io::Result<()> {
     // Setup
@@ -40,14 +29,10 @@ fn main() -> io::Result<()> {
 
     let mut rockets: Vec<Rocket> = Vec::new();
     rockets.push(Rocket::new());
-    // let mut rocket = Rocket::new();
 
     let mut sparks: Vec<Spark> = Vec::new();
     let mut flares: Vec<GroundFlare> = Vec::new();
 
-    // TODO Create a list of chars which are given to sparks
-    // let mut chars: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
-    // let mut chars: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
     let mut chars: Vec<char> =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'"
         // "0123456789"
@@ -55,7 +40,7 @@ fn main() -> io::Result<()> {
             .collect();
 
     // Better way to print border one time --
-    let mut frame = new_frame();
+    let frame = new_frame();
     border(&frame);
 
     // --
@@ -78,9 +63,9 @@ fn main() -> io::Result<()> {
                         if let Some(selected_chars) = take_chars(&mut chars, 10) {
                             loop {
                                 let pos = rand::thread_rng().gen_range(10, NB_COLS - 10);
-                                if !flares
+                                if !(flares
                                     .iter()
-                                    .any(|f| pos <= f.position_x() + 3 && pos >= f.position_x() - 3)
+                                    .any(|f| pos < f.position_x() + 5 && pos > f.position_x() - 5))
                                 {
                                     flares.push(GroundFlare::new(selected_chars, pos));
                                     break;
@@ -111,61 +96,30 @@ fn main() -> io::Result<()> {
             }
         }
 
-        println!("longueur avant run et compagnie: {} ", chars.len());
-
         // Rockets --
-        for rocket in rockets.iter_mut() {
-            if rocket.exploded() {
+        rockets.retain_mut(|r| {
+            if r.exploded() {
                 if let Some(selected) = take_chars(&mut chars, rand::thread_rng().gen_range(3, 10))
                 {
-                    sparks.push(Spark::new(*rocket.position().unwrap(), selected));
-                }
+                    sparks.push(Spark::new(*r.position().unwrap(), selected));
+                };
+                false
+            } else {
+                true
             }
-        }
-
-        rockets.retain_mut(|r| !r.exploded());
-        rockets.iter_mut().for_each(|r| {
-            r.run();
-            r.draw(&mut frame);
         });
+        run_draw(&mut rockets, &mut frame);
 
         // Sparks --
-        sparks.retain_mut(|s| {
-            if let Some(mut characters) = s.is_done() {
-                chars.append(&mut characters);
-                false
-            } else {
-                true
-            }
-        });
+        get_char_back(&mut chars, &mut sparks);
+        run_draw(&mut sparks, &mut frame);
 
-        sparks.iter_mut().for_each(|s| {
-            s.run();
-            s.draw(&mut frame);
-        });
-
-        // TODO: combine with sparks !!!!
         // Flare --
+        run_draw(&mut flares, &mut frame);
+        get_char_back(&mut chars, &mut flares);
 
-        flares.iter_mut().for_each(|f| {
-            f.run();
-            f.draw(&mut frame)
-        });
-
-        flares.retain_mut(|f| {
-            if let Some(mut characters) = f.is_done() {
-                dbg!(&characters);
-                chars.append(&mut characters);
-                false
-            } else {
-                true
-            }
-        });
-
-        println!("longueur APRES run et compagnie: {} ", chars.len());
         // --
         render(&frame);
-
         thread::sleep(Duration::from_millis(2));
     }
 
@@ -175,4 +129,38 @@ fn main() -> io::Result<()> {
     terminal::disable_raw_mode()?;
 
     Ok(())
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
+    elements.iter_mut().for_each(|f| {
+        f.run();
+        f.draw(frame)
+    });
+}
+
+// Check if all elements are done, if so put their char in the buffer and remove them.
+fn get_char_back(chars: &mut Vec<char>, elements: &mut Vec<impl Run>) {
+    elements.retain_mut(|f| {
+        if let Some(mut characters) = f.is_done() {
+            chars.append(&mut characters);
+            false
+        } else {
+            true
+        }
+    });
+}
+
+// Pick an amount up of char in the buffer.
+fn take_chars(chars: &mut Vec<char>, amount: usize) -> Option<Vec<char>> {
+    if amount <= chars.len() {
+        Some(
+            (0..amount)
+                .map(|_| chars.remove(rand::thread_rng().gen_range(0, chars.len())))
+                .collect(),
+        )
+    } else {
+        None
+    }
 }
