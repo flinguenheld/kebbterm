@@ -11,6 +11,9 @@ pub fn render(frame: &Frame) {
     for row in 1..frame.len() {
         for col in 1..frame[0].len() {
             stdout
+                .queue(style::SetBackgroundColor(frame[row][col].back_color))
+                .unwrap();
+            stdout
                 .queue(style::SetForegroundColor(frame[row][col].fore_color))
                 .unwrap();
             stdout
@@ -21,31 +24,4 @@ pub fn render(frame: &Frame) {
     }
 
     stdout.flush().unwrap();
-}
-
-pub fn border(frame: &Frame) {
-    let mut stdout = io::stdout();
-    stdout
-        .queue(style::SetBackgroundColor(style::Color::DarkGrey))
-        .unwrap();
-
-    for col in 0..=frame[0].len() as u16 {
-        stdout.queue(cursor::MoveTo(col, 0)).unwrap();
-        stdout.queue(style::Print(' ')).unwrap();
-        stdout
-            .queue(cursor::MoveTo(col, frame.len() as u16))
-            .unwrap();
-        stdout.queue(style::Print(' ')).unwrap();
-    }
-
-    for row in 0..frame.len() as u16 {
-        stdout.queue(cursor::MoveTo(0, row)).unwrap();
-        stdout.queue(style::Print(' ')).unwrap();
-        stdout
-            .queue(cursor::MoveTo(frame[0].len() as u16, row))
-            .unwrap();
-        stdout.queue(style::Print(' ')).unwrap();
-    }
-
-    // stdout.flush().unwrap();
 }

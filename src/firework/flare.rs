@@ -1,6 +1,6 @@
 use crate::{
     firework::tail::Tail,
-    firework::Run,
+    firework::{Check, Run},
     geometry::{Point, Speed, NB_ROWS},
     render::frame::{Drawable, Frame},
 };
@@ -10,7 +10,8 @@ use rand::Rng;
 // ------------------------------------------------------------ GroundFlare ---
 /*
  * From a given stock of chars, this struct launches a randomised amount of Flares.
- * Each flares are started regulary and each char is recovered at the flare remove.
+ * All flares are started regulary and each char is recovered at
+ * the flare remove to be reused.
  * Once the amount is reached, use the function 'is_done' to get the chars back.
  */
 pub struct GroundFlare {
@@ -21,7 +22,7 @@ pub struct GroundFlare {
     loop_counter_step: u32,
 
     flare_counter: u8,
-    flare_total: u8,
+    flare_nb_max: u8,
     position_x: usize,
 }
 
@@ -36,24 +37,26 @@ impl GroundFlare {
             position_x: position,
 
             flare_counter: 0,
-            flare_total: rand::thread_rng().gen_range(25, 40),
+            flare_nb_max: rand::thread_rng().gen_range(25, 40),
         };
 
         ground_flare
     }
 
-    pub fn check_value(&mut self, val: &char) -> bool {
+    // Useful in main to take GroundFlares away from each others.
+    pub fn position_x(&self) -> usize {
+        self.position_x
+    }
+}
+
+impl Check for GroundFlare {
+    fn check_value(&mut self, val: &char) -> bool {
         for f in self.flares.iter_mut() {
             if f.check_value(val) == true {
                 return true;
             }
         }
         return false;
-    }
-
-    // Useful in main to take GroundFlares away.
-    pub fn position_x(&self) -> usize {
-        self.position_x
     }
 }
 
@@ -77,10 +80,9 @@ impl Run for GroundFlare {
             }
         });
 
-        // Put char in tail
-        // Force the first
+        // Start a new tail.
         if (self.loop_counter == self.loop_counter_step
-            && self.flare_counter < self.flare_total
+            && self.flare_counter < self.flare_nb_max
             && !self.chars.is_empty())
             || self.flare_counter == 0
         {
@@ -120,17 +122,16 @@ impl Drawable for GroundFlare {
  * Only useful with GroundFlare.
  */
 struct Flare {
-    done: bool,
     tail: Tail,
     speed: Speed,
 
+    done: bool,
     max_row: usize,
 }
 
 impl Flare {
     fn new(new_position: usize, value: char) -> Flare {
         Flare {
-            done: false,
             tail: Tail::new(
                 value,
                 5,
@@ -140,9 +141,6 @@ impl Flare {
                 },
                 vec![207, 212, 219, 248, 241],
             ),
-
-            max_row: rand::thread_rng()
-                .gen_range(NB_ROWS / 2 + NB_ROWS / 10, NB_ROWS / 2 + NB_ROWS / 5),
 
             speed: Speed::new(
                 Point {
@@ -156,6 +154,10 @@ impl Flare {
                     y: 10,
                 },
             ),
+
+            done: false,
+            max_row: rand::thread_rng()
+                .gen_range(NB_ROWS / 2 + NB_ROWS / 10, NB_ROWS / 2 + NB_ROWS / 5),
         }
     }
 

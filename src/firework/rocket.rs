@@ -6,6 +6,8 @@ use rand::Rng;
 
 /*
  * See the yellow !
+ * Rocket is a tail which aims to explode at a randomised row.
+ * The explosion and the spark creation are managed by main.
  */
 pub struct Rocket {
     tail: Tail,

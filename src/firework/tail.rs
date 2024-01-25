@@ -1,18 +1,17 @@
 use crate::geometry::Point;
-use crate::render::frame::{Drawable, Frame};
+use crate::render::frame::Frame;
 use crossterm::style;
 use std::collections::VecDeque;
 
 /*
  * Display a 'tail' of one char.
- * Give it the next position and use the trait 'draw' to update the frame.
+ * Give it the next position and use the function 'draw' to update the frame.
  */
 pub struct Tail {
     pub value: char,
     positions: VecDeque<Point>,
     length: usize,
 
-    // colors: Vec<style::Color>,
     colors: Vec<u8>,
 }
 
@@ -54,13 +53,7 @@ impl Tail {
         self.positions.is_empty()
     }
 
-    pub fn clear(&mut self) {
-        self.positions.clear();
-    }
-}
-
-impl Drawable for Tail {
-    fn draw(&self, frame: &mut Frame) {
+    pub fn draw(&self, frame: &mut Frame) {
         for iter in self.positions.iter().rev().zip(self.colors.iter().rev()) {
             frame[iter.0.y][iter.0.x].value = self.value;
             frame[iter.0.y][iter.0.x].fore_color = style::Color::AnsiValue(*iter.1);

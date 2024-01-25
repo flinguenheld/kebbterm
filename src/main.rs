@@ -4,21 +4,24 @@ use crossterm::{
     terminal, ExecutableCommand,
 };
 use kebbterm::{
-    firework::flare::GroundFlare,
-    firework::rocket::Rocket,
-    firework::spark::Spark,
-    firework::Run,
-    geometry::NB_COLS,
-    render::draw::{border, render},
-    render::frame::{new_frame, Drawable, Frame},
+    firework::flare::*, firework::rocket::*, firework::spark::*, firework::*, geometry::NB_COLS,
+    render::draw::*, render::frame::*,
 };
 use rand::Rng;
 
 use std::{
     io::{self},
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
+
+struct Counters {
+    success: u16,
+    fails: u16,
+    sparks: u16,
+    groundflares: u16,
+    start_time: std::time::Instant,
+}
 
 fn main() -> io::Result<()> {
     // Setup
@@ -28,10 +31,8 @@ fn main() -> io::Result<()> {
     stdout.execute(cursor::Hide)?;
 
     let mut rockets: Vec<Rocket> = Vec::new();
-    rockets.push(Rocket::new());
-
     let mut sparks: Vec<Spark> = Vec::new();
-    let mut flares: Vec<GroundFlare> = Vec::new();
+    let mut ground_flares: Vec<GroundFlare> = Vec::new();
 
     let mut chars: Vec<char> =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'"
@@ -39,9 +40,13 @@ fn main() -> io::Result<()> {
             .chars()
             .collect();
 
-    // Better way to print border one time --
-    let frame = new_frame();
-    border(&frame);
+    let mut counters = Counters {
+        success: 0,
+        fails: 0,
+        sparks: 0,
+        groundflares: 0,
+        start_time: Instant::now(),
+    };
 
     // --
     'gameloop: loop {
@@ -63,11 +68,12 @@ fn main() -> io::Result<()> {
                         if let Some(selected_chars) = take_chars(&mut chars, 10) {
                             loop {
                                 let pos = rand::thread_rng().gen_range(10, NB_COLS - 10);
-                                if !(flares
+                                if !(ground_flares
                                     .iter()
                                     .any(|f| pos < f.position_x() + 5 && pos > f.position_x() - 5))
                                 {
-                                    flares.push(GroundFlare::new(selected_chars, pos));
+                                    ground_flares.push(GroundFlare::new(selected_chars, pos));
+                                    counters.groundflares += 1;
                                     break;
                                 }
                             }
@@ -75,21 +81,11 @@ fn main() -> io::Result<()> {
                     }
 
                     KeyCode::Char(val) => {
-                        for spark in sparks.iter_mut() {
-                            if spark.check_value(&val) {
-
-                                // TODO SCORE +1
-                            }
+                        if check_value(&mut sparks, &val, &mut counters.success) == false
+                            && check_value(&mut ground_flares, &val, &mut counters.success) == false
+                        {
+                            counters.fails += 1;
                         }
-
-                        for flare in flares.iter_mut() {
-                            if flare.check_value(&val) {
-
-                                // TODO SCORE +1
-                            }
-                        }
-
-                        // TODO SCORE -1
                     }
                     _ => {}
                 }
@@ -102,6 +98,7 @@ fn main() -> io::Result<()> {
                 if let Some(selected) = take_chars(&mut chars, rand::thread_rng().gen_range(3, 10))
                 {
                     sparks.push(Spark::new(*r.position().unwrap(), selected));
+                    counters.sparks += 1;
                 };
                 false
             } else {
@@ -115,8 +112,8 @@ fn main() -> io::Result<()> {
         run_draw(&mut sparks, &mut frame);
 
         // Flare --
-        run_draw(&mut flares, &mut frame);
-        get_char_back(&mut chars, &mut flares);
+        run_draw(&mut ground_flares, &mut frame);
+        get_char_back(&mut chars, &mut ground_flares);
 
         // --
         render(&frame);
@@ -128,11 +125,31 @@ fn main() -> io::Result<()> {
     stdout.execute(terminal::LeaveAlternateScreen)?;
     terminal::disable_raw_mode()?;
 
+    // Temp scores:
+    println!();
+    println!("Elapsed time: {:?}", counters.start_time.elapsed());
+    println!("Success: {}", counters.success);
+    println!("Fails: {}", counters.fails);
+    println!("Rockets: {}", counters.sparks);
+    println!("Ground flares: {}", counters.groundflares);
+
     Ok(())
 }
 
 // ----------------------------------------------------------------------------
+// ------------------------------------------------------------------ Check ---
+fn check_value(element: &mut Vec<impl Check>, val: &char, counter: &mut u16) -> bool {
+    for e in element.iter_mut() {
+        if e.check_value(&val) {
+            *counter += 1;
+            return true;
+        }
+    }
+    return false;
+}
+
 // ----------------------------------------------------------------------------
+// --------------------------------------------------------- Run & Drawable ---
 fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
     elements.iter_mut().for_each(|f| {
         f.run();
@@ -140,7 +157,7 @@ fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
     });
 }
 
-// Check if all elements are done, if so put their char in the buffer and remove them.
+// Check if all elements are done, if so, put their chars in the buffer and remove them.
 fn get_char_back(chars: &mut Vec<char>, elements: &mut Vec<impl Run>) {
     elements.retain_mut(|f| {
         if let Some(mut characters) = f.is_done() {

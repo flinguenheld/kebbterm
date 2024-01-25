@@ -9,3 +9,6 @@ pub trait Run {
         None
     }
 }
+pub trait Check {
+    fn check_value(&mut self, val: &char) -> bool;
+}

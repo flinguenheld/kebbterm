@@ -1,10 +1,9 @@
-use crate::firework::Run;
+use crate::firework::{Check, Run};
 use crate::geometry::{Point, Speed};
 use crate::render::frame::Frame;
 use crate::{firework::tail::Tail, render::frame::Drawable};
 use rand::Rng;
 
-// #[derive(Copy, Clone)]
 struct Branch {
     trajectory: u8,
     tail: Tail,
@@ -13,7 +12,10 @@ struct Branch {
 
 /*
  * Spark contains a group of Branches (9 maxi).
- * It allows to move and display them.
+ * It allows you to move and display them.
+ * A bunch of chars have to be done in the constructor.
+ * Use the trait 'is_done' to get them back when all branches are done.
+ * Lifetime is counted by 'max_move', moves are counted by 'speed'.
  */
 pub struct Spark {
     branches: Vec<Branch>,
@@ -28,7 +30,7 @@ impl Spark {
         let mut spark = Spark {
             branches: Vec::new(),
 
-            max_moves: 8, // Adapt with speed
+            max_moves: 8, // Adapt with speed calculation
             nb_moves: 0,
 
             speed: Speed::new(
@@ -65,10 +67,10 @@ impl Spark {
         }
         spark
     }
+}
 
-    pub fn check_value(&mut self, val: &char) -> bool {
-        // TODO: Don't remove it but set a 'done' in the tail
-
+impl Check for Spark {
+    fn check_value(&mut self, val: &char) -> bool {
         self.branches
             .iter_mut()
             .filter(|b| b.tail.value == *val)
@@ -80,10 +82,8 @@ impl Spark {
             == 1
     }
 }
+
 impl Run for Spark {
-    /*
-     * Check if all tails are done
-     */
     fn is_done(&self) -> Option<Vec<char>> {
         if self
             .branches
@@ -101,10 +101,9 @@ impl Run for Spark {
             self.speed.up_by_x(self.nb_moves as f32);
 
             for branch in self.branches.iter_mut() {
-                // End of time --
+                // Too late for the user --
                 if self.nb_moves >= self.max_moves && branch.is_done == false {
                     branch.is_done = true;
-                    // TODO up colours ?
                 }
 
                 if branch.is_done == true {
