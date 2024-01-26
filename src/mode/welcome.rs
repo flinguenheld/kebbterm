@@ -1,7 +1,7 @@
-use super::Mode;
 use crate::{
     geometry::{NB_COLS, NB_ROWS},
-    render::frame::Frame,
+    mode::Mode,
+    render::frame::{paint, print, Frame},
 };
 use crossterm::event::{self, Event, KeyCode};
 use std::{io, time::Duration};
@@ -20,10 +20,9 @@ impl ModeWelcome {
                     KeyCode::Esc => {
                         *mode = Mode::Quit;
                         return Ok(());
-                        // break 'gameloop;
                     }
                     KeyCode::Enter => {
-                        *mode = Mode::Game;
+                        *mode = Mode::Game(false);
                         return Ok(());
                     }
                     _ => {}
@@ -31,22 +30,17 @@ impl ModeWelcome {
             }
         }
 
-        let y = NB_ROWS / 2 - 2;
+        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 7, 12, 40, 236);
 
-        print(frame, y, "KEBBTERM");
-        print(frame, y + 2, "ESCAPE -> Exit");
-        print(frame, y + 3, "ENTER -> Throw a rocket");
-        print(frame, y + 4, "SPACE -> Start a ground flare");
-        // frame[10][10].value = 'A';
+        let y = NB_ROWS / 2 - 5;
+        let fore_color = 250;
+
+        print(frame, y, "KEBB TERM", 214);
+        print(frame, y + 2, "━━━━━━━━━━━━━━━━━", 235);
+        print(frame, y + 4, "ENTER -> Throw a rocket", fore_color);
+        print(frame, y + 5, "SPACE -> Start a ground flare", fore_color);
+        print(frame, y + 7, "ESC ->  Exit", fore_color);
 
         Ok(())
-    }
-}
-
-fn print(frame: &mut Frame, y: usize, text: &str) {
-    // let y = 20;
-    let start_x = NB_COLS / 2 - text.len() / 2 - 1;
-    for (x, c) in text.chars().enumerate() {
-        frame[y][start_x + x].value = c;
     }
 }

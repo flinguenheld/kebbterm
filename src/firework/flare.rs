@@ -139,7 +139,8 @@ impl Flare {
                     x: new_position,
                     y: NB_ROWS - 2,
                 },
-                vec![207, 212, 219, 248, 241],
+                // vec![201, 207, 212, 218, 244],
+                vec![147, 141, 135, 129, 91],
             ),
 
             speed: Speed::new(
@@ -165,7 +166,7 @@ impl Flare {
         if self.tail.value == *value {
             self.speed.up_by_x((NB_ROWS - 3) as f32);
             self.done = true;
-            self.tail.set_color(vec![76, 70, 72, 28, 241]);
+            self.tail.set_color(vec![76, 70, 72, 28, 22]);
             true
         } else {
             false

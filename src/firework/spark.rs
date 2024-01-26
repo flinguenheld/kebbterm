@@ -1,7 +1,10 @@
-use crate::firework::{Check, Run};
-use crate::geometry::{Point, Speed};
-use crate::render::frame::Frame;
-use crate::{firework::tail::Tail, render::frame::Drawable};
+use crate::{
+    firework::tail::Tail,
+    firework::{Check, Run},
+    geometry::{Point, Speed},
+    render::frame::Drawable,
+    render::frame::Frame,
+};
 use rand::Rng;
 
 struct Branch {
@@ -36,12 +39,12 @@ impl Spark {
             speed: Speed::new(
                 Point {
                     // Fast on start
-                    x: rand::thread_rng().gen_range(10, 15),
+                    x: rand::thread_rng().gen_range(2, 8),
                     y: 2,
                 },
                 Point {
                     // Slow at the end
-                    x: rand::thread_rng().gen_range(110, 130),
+                    x: rand::thread_rng().gen_range(70, 90),
                     y: 8,
                 },
             ),
@@ -61,7 +64,8 @@ impl Spark {
 
             spark.branches.push(Branch {
                 trajectory: traj,
-                tail: Tail::new(*c, 3, center, vec![208, 202, 242]),
+                // tail: Tail::new(*c, 4, center, vec![160, 196, 202, 208]),
+                tail: Tail::new(*c, 4, center, vec![208, 202, 196, 160]),
                 is_done: false,
             });
         }

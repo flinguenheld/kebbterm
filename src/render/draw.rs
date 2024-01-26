@@ -5,7 +5,6 @@ use std::io::{self, Write};
 pub fn render(frame: &Frame) {
     let mut stdout = io::stdout();
     stdout
-        // .queue(style::SetBackgroundColor(style::Color::Black))
         .queue(style::SetAttribute(style::Attribute::Bold))
         .unwrap();
     for row in 1..frame.len() {

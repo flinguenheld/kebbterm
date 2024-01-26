@@ -1,5 +1,4 @@
-use crate::geometry::Point;
-use crate::render::frame::Frame;
+use crate::{geometry::Point, render::frame::Frame};
 use crossterm::style;
 use std::collections::VecDeque;
 

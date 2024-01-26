@@ -1,34 +1,19 @@
-use crossterm::event::{self, Event, KeyCode};
-use rand::Rng;
-
-use std::{
-    io,
-    time::{Duration, Instant},
-};
-
 use crate::{
     firework::{flare::GroundFlare, rocket::Rocket, spark::Spark, Check, Run},
     geometry::NB_COLS,
+    mode::counter::Counters,
+    mode::Mode,
     render::frame::{Drawable, Frame},
 };
-
-use super::Mode;
-
-struct Counters {
-    success: u16,
-    fails: u16,
-    sparks: u16,
-    groundflares: u16,
-    start_time: std::time::Instant,
-}
+use crossterm::event::{self, Event, KeyCode};
+use rand::Rng;
+use std::{io, time::Duration};
 
 pub struct ModeGame {
     rockets: Vec<Rocket>,
     sparks: Vec<Spark>,
     ground_flares: Vec<GroundFlare>,
     chars: Vec<char>,
-
-    counters: Counters,
 }
 
 impl ModeGame {
@@ -39,24 +24,22 @@ impl ModeGame {
             ground_flares: Vec::new(),
 
             chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'".chars().collect(),
-
-            counters: Counters {
-                success: 0,
-                fails: 0,
-                sparks: 0,
-                groundflares: 0,
-                start_time: Instant::now(),
-            },
         }
     }
 
-    pub fn mode_loop(&mut self, frame: &mut Frame, mode: &mut Mode) -> io::Result<()> {
+    pub fn mode_loop(
+        &mut self,
+        frame: &mut Frame,
+        mode: &mut Mode,
+        counters: &mut Counters,
+    ) -> io::Result<()> {
         // Input
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
                     KeyCode::Esc => {
-                        *mode = Mode::Quit;
+                        counters.elapsed_time += counters.start_time.elapsed().as_secs();
+                        *mode = Mode::Score;
                         return Ok(());
                         // break 'gameloop;
                     }
@@ -74,7 +57,7 @@ impl ModeGame {
                                 {
                                     self.ground_flares
                                         .push(GroundFlare::new(selected_chars, pos));
-                                    self.counters.groundflares += 1;
+                                    counters.groundflares += 1;
                                     break;
                                 }
                             }
@@ -82,14 +65,11 @@ impl ModeGame {
                     }
 
                     KeyCode::Char(val) => {
-                        if check_value(&mut self.sparks, &val, &mut self.counters.success) == false
-                            && check_value(
-                                &mut self.ground_flares,
-                                &val,
-                                &mut self.counters.success,
-                            ) == false
+                        if check_value(&mut self.sparks, &val, &mut counters.success) == false
+                            && check_value(&mut self.ground_flares, &val, &mut counters.success)
+                                == false
                         {
-                            self.counters.fails += 1;
+                            counters.fails += 1;
                         }
                     }
                     _ => {}
@@ -105,7 +85,7 @@ impl ModeGame {
                 {
                     self.sparks
                         .push(Spark::new(*r.position().unwrap(), selected));
-                    self.counters.sparks += 1;
+                    counters.sparks += 1;
                 };
                 false
             } else {

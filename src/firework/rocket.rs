@@ -1,7 +1,9 @@
-use crate::firework::tail::Tail;
-use crate::firework::Run;
-use crate::geometry::{Point, Speed, NB_COLS, NB_ROWS};
-use crate::render::frame::{Drawable, Frame};
+use crate::{
+    firework::tail::Tail,
+    firework::Run,
+    geometry::{Point, Speed, NB_COLS, NB_ROWS},
+    render::frame::{Drawable, Frame},
+};
 use rand::Rng;
 
 /*
@@ -32,12 +34,12 @@ impl Rocket {
             speed: Speed::new(
                 Point {
                     // Fast at the bottom
-                    x: rand::thread_rng().gen_range(8, 12),
+                    x: rand::thread_rng().gen_range(4, 8),
                     y: NB_ROWS - 1,
                 },
                 Point {
                     // Slow at the top
-                    x: rand::thread_rng().gen_range(70, 85),
+                    x: rand::thread_rng().gen_range(40, 50),
                     y: 2,
                 },
             ),
