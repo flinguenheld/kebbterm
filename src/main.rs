@@ -38,7 +38,7 @@ fn main() -> io::Result<()> {
                 }
                 mode_game.mode_loop(&mut frame, &mut mode, &mut counters)?
             }
-            Mode::Score => mode_score.mode_loop(&mut frame, &mut mode, &counters)?,
+            Mode::Score => mode_score.mode_loop(&mut frame, &mut mode, &mut counters)?,
             _ => break 'gameloop,
         };
 
@@ -46,7 +46,7 @@ fn main() -> io::Result<()> {
         render(&frame);
 
         let elapsed_time = start_time.elapsed().as_micros();
-        dbg!(elapsed_time);
+        // dbg!(elapsed_time);
         if elapsed_time < 5000 {
             thread::sleep(Duration::from_micros(
                 (Duration::from_micros(5100).as_micros() - start_time.elapsed().as_micros()) as u64,

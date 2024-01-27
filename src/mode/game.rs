@@ -41,7 +41,6 @@ impl ModeGame {
                         counters.elapsed_time += counters.start_time.elapsed().as_secs();
                         *mode = Mode::Score;
                         return Ok(());
-                        // break 'gameloop;
                     }
                     KeyCode::Enter => {
                         self.rockets.push(Rocket::new());

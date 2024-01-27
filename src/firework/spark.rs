@@ -80,7 +80,8 @@ impl Check for Spark {
             .filter(|b| b.tail.value == *val)
             .map(|b| {
                 b.is_done = true;
-                b.tail.set_color(vec![76, 70, 28]);
+                // b.tail.set_color(vec![76, 70, 28]);
+                b.tail.set_color(vec![82, 76, 70, 34]);
             })
             .count()
             == 1

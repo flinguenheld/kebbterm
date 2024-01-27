@@ -17,7 +17,7 @@ impl ModeScore {
         &mut self,
         frame: &mut Frame,
         mode: &mut Mode,
-        counters: &Counters,
+        counters: &mut Counters,
     ) -> io::Result<()> {
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
@@ -28,6 +28,7 @@ impl ModeScore {
                     }
                     KeyCode::Char('C') | KeyCode::Char('c') => {
                         *mode = Mode::Game(false);
+                        counters.reset_timer();
                         return Ok(());
                     }
                     KeyCode::Char('N') | KeyCode::Char('n') => {
@@ -39,35 +40,46 @@ impl ModeScore {
             }
         }
 
-        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 12, 20, 40, 236);
+        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 12, 22, 40, 236);
 
         let y = NB_ROWS / 2 - 10;
         let fore_color = 250;
 
+        let time_str = {
+            if counters.elapsed_time / 60 == 0 {
+                format!("{} sec", counters.elapsed_time % 60)
+            } else {
+                format!(
+                    "{} min {} sec",
+                    counters.elapsed_time / 60,
+                    counters.elapsed_time % 60
+                )
+            }
+        };
+
         print(frame, y, "PAUSE", fore_color);
         print(frame, y + 2, "━━━━━━━━━━━━━━━", 235);
+        print(frame, y + 4, &time_str, 32);
 
-        print(frame, y + 4, &format!("Success: {}", counters.success), 34);
-        print(frame, y + 5, &format!("Fails: {}", counters.fails), 172);
+        print(frame, y + 6, &format!("Success: {}", counters.success), 34);
+        print(frame, y + 7, &format!("Fails: {}", counters.fails), 172);
         print(
             frame,
-            y + 7,
+            y + 9,
             &format!("Sparks: {}", counters.sparks),
             fore_color,
         );
         print(
             frame,
-            y + 8,
+            y + 10,
             &format!("Ground flares: {}", counters.groundflares),
             fore_color,
         );
-        print(frame, y + 10, "━━━━━━━━━━━━━━━", 235);
+        print(frame, y + 12, "━━━━━━━━━━━━━━━", 235);
 
-        print(frame, y + 12, "C -> Continue", fore_color);
-        print(frame, y + 13, "N -> New game", fore_color);
-        print(frame, y + 15, "ESC -> Exit", fore_color);
-
-        // frame[10][10].value = 'A';
+        print(frame, y + 14, "C -> Continue", fore_color);
+        print(frame, y + 15, "N -> New game", fore_color);
+        print(frame, y + 17, "ESC -> Exit", fore_color);
 
         Ok(())
     }

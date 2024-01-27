@@ -20,4 +20,7 @@ impl Counters {
             elapsed_time: 0,
         }
     }
+    pub fn reset_timer(&mut self) {
+        self.start_time = Instant::now()
+    }
 }
