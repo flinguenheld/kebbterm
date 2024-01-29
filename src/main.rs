@@ -1,7 +1,8 @@
+use crossbeam::channel::bounded;
 use crossterm::{cursor, terminal, ExecutableCommand};
 use kebbterm::{
     mode::{counter::Counters, game::ModeGame, score::ModeScore, welcome::ModeWelcome, Mode},
-    render::{draw::render, frame::new_frame},
+    render::{draw::render, frame::*},
 };
 use std::{
     io::{self},
@@ -10,7 +11,7 @@ use std::{
 };
 
 fn main() -> io::Result<()> {
-    // Setup
+    // Setup --
     let mut stdout = io::stdout();
     terminal::enable_raw_mode()?;
     stdout.execute(terminal::EnterAlternateScreen)?;
@@ -23,10 +24,19 @@ fn main() -> io::Result<()> {
 
     let mut counters = Counters::new();
 
+    // Render --
+    let (s, r) = bounded::<Frame>(1);
+    let render_thread = thread::spawn(move || {
+        let mut previous_frame = new_frame();
+        while let Ok(frame) = r.recv() {
+            render(&frame, &previous_frame);
+            previous_frame = frame;
+        }
+    });
+
     // --
     'gameloop: loop {
         let mut frame = new_frame();
-        let start_time = std::time::Instant::now();
 
         match mode {
             Mode::Welcome => mode_welcome.mode_loop(&mut frame, &mut mode)?,
@@ -43,18 +53,14 @@ fn main() -> io::Result<()> {
         };
 
         // --
-        render(&frame);
-
-        let elapsed_time = start_time.elapsed().as_micros();
-        // dbg!(elapsed_time);
-        if elapsed_time < 5000 {
-            thread::sleep(Duration::from_micros(
-                (Duration::from_micros(5100).as_micros() - start_time.elapsed().as_micros()) as u64,
-            ));
-        }
+        let _ = s.send(frame);
+        thread::sleep(Duration::from_millis(1));
     }
 
-    // Cleanup
+    // Cleanup --
+    drop(s);
+    render_thread.join().unwrap();
+
     stdout.execute(cursor::Show)?;
     stdout.execute(terminal::LeaveAlternateScreen)?;
     terminal::disable_raw_mode()?;
