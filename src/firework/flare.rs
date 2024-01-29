@@ -21,9 +21,11 @@ pub struct GroundFlare {
     loop_counter: u32,
     loop_counter_step: u32,
 
-    flare_counter: u8,
-    flare_nb_max: u8,
+    flare_counter: u16,
+    flare_nb_max: u16,
     position_x: usize,
+
+    nb_success: u16,
 }
 
 impl GroundFlare {
@@ -38,6 +40,8 @@ impl GroundFlare {
 
             flare_counter: 0,
             flare_nb_max: rand::thread_rng().gen_range(25, 40),
+
+            nb_success: 0,
         };
 
         ground_flare
@@ -53,6 +57,7 @@ impl Check for GroundFlare {
     fn check_value(&mut self, val: &char) -> bool {
         for f in self.flares.iter_mut() {
             if f.check_value(val) == true {
+                self.nb_success += 1;
                 return true;
             }
         }
@@ -61,9 +66,9 @@ impl Check for GroundFlare {
 }
 
 impl Run for GroundFlare {
-    fn is_done(&self) -> Option<Vec<char>> {
+    fn is_done(&self) -> Option<(Vec<char>, u16)> {
         if self.flares.is_empty() {
-            Some(self.chars.clone())
+            Some((self.chars.clone(), self.flare_counter - self.nb_success))
         } else {
             None
         }

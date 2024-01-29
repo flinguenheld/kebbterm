@@ -94,12 +94,16 @@ impl ModeGame {
         run_draw(&mut self.rockets, frame);
 
         // Sparks --
-        get_char_back(&mut self.chars, &mut self.sparks);
+        get_char_back(&mut self.chars, &mut self.sparks, &mut counters.misses);
         run_draw(&mut self.sparks, frame);
 
         // Flare --
         run_draw(&mut self.ground_flares, frame);
-        get_char_back(&mut self.chars, &mut self.ground_flares);
+        get_char_back(
+            &mut self.chars,
+            &mut self.ground_flares,
+            &mut counters.misses,
+        );
 
         Ok(())
     }
@@ -127,10 +131,12 @@ fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
 }
 
 // Check if all elements are done, if so, put their chars in the buffer and remove them.
-fn get_char_back(chars: &mut Vec<char>, elements: &mut Vec<impl Run>) {
+// Also get the amount of misses counted by the elements themselves.
+fn get_char_back(chars: &mut Vec<char>, elements: &mut Vec<impl Run>, misses: &mut u16) {
     elements.retain_mut(|f| {
-        if let Some(mut characters) = f.is_done() {
+        if let Some((mut characters, nb_misses)) = f.is_done() {
             chars.append(&mut characters);
+            *misses += nb_misses;
             false
         } else {
             true

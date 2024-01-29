@@ -5,7 +5,8 @@ pub mod tail;
 
 pub trait Run {
     fn run(&mut self);
-    fn is_done(&self) -> Option<Vec<char>> {
+    // Chars to get in the buffer back and amount of misses.
+    fn is_done(&self) -> Option<(Vec<char>, u16)> {
         None
     }
 }

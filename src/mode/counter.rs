@@ -3,6 +3,7 @@ use std::time::Instant;
 pub struct Counters {
     pub success: u16,
     pub fails: u16,
+    pub misses: u16,
     pub sparks: u16,
     pub groundflares: u16,
     pub start_time: std::time::Instant,
@@ -14,6 +15,7 @@ impl Counters {
         Counters {
             success: 0,
             fails: 0,
+            misses: 0,
             sparks: 0,
             groundflares: 0,
             start_time: Instant::now(),

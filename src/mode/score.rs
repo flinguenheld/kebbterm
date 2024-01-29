@@ -40,7 +40,7 @@ impl ModeScore {
             }
         }
 
-        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 12, 22, 40, 236);
+        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 12, 23, 40, 236);
 
         let y = NB_ROWS / 2 - 10;
         let fore_color = 250;
@@ -62,24 +62,25 @@ impl ModeScore {
         print(frame, y + 4, &time_str, 32);
 
         print(frame, y + 6, &format!("Success: {}", counters.success), 34);
-        print(frame, y + 7, &format!("Fails: {}", counters.fails), 172);
+        print(frame, y + 7, &format!("Fails: {}", counters.fails), 124);
+        print(frame, y + 8, &format!("Misses: {}", counters.misses), 172);
         print(
             frame,
-            y + 9,
+            y + 10,
             &format!("Sparks: {}", counters.sparks),
             fore_color,
         );
         print(
             frame,
-            y + 10,
+            y + 11,
             &format!("Ground flares: {}", counters.groundflares),
             fore_color,
         );
-        print(frame, y + 12, "━━━━━━━━━━━━━━━", 235);
+        print(frame, y + 13, "━━━━━━━━━━━━━━━", 235);
 
-        print(frame, y + 14, "C -> Continue", fore_color);
-        print(frame, y + 15, "N -> New game", fore_color);
-        print(frame, y + 17, "ESC -> Exit", fore_color);
+        print(frame, y + 15, "C -> Continue", fore_color);
+        print(frame, y + 16, "N -> New game", fore_color);
+        print(frame, y + 18, "ESC -> Exit", fore_color);
 
         Ok(())
     }

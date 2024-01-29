@@ -24,8 +24,10 @@ pub struct Spark {
     branches: Vec<Branch>,
     speed: Speed,
 
-    max_moves: u8,
-    nb_moves: u8,
+    max_moves: u16,
+    nb_moves: u16,
+
+    nb_success: u16,
 }
 
 impl Spark {
@@ -35,6 +37,8 @@ impl Spark {
 
             max_moves: 8, // Adapt with speed calculation
             nb_moves: 0,
+
+            nb_success: 0,
 
             speed: Speed::new(
                 Point {
@@ -75,27 +79,35 @@ impl Spark {
 
 impl Check for Spark {
     fn check_value(&mut self, val: &char) -> bool {
-        self.branches
+        if self
+            .branches
             .iter_mut()
             .filter(|b| b.tail.value == *val)
             .map(|b| {
                 b.is_done = true;
-                // b.tail.set_color(vec![76, 70, 28]);
                 b.tail.set_color(vec![82, 76, 70, 34]);
             })
             .count()
             == 1
+        {
+            self.nb_success += 1;
+            true
+        } else {
+            false
+        }
     }
 }
 
 impl Run for Spark {
-    fn is_done(&self) -> Option<Vec<char>> {
+    fn is_done(&self) -> Option<(Vec<char>, u16)> {
         if self
             .branches
             .iter()
             .all(|b| b.is_done == true && b.tail.is_empty())
         {
-            Some(self.branches.iter().map(|b| b.tail.value).collect())
+            let chars: Vec<char> = self.branches.iter().map(|b| b.tail.value).collect();
+            let misses = chars.len() as u16 - self.nb_success;
+            Some((chars, misses))
         } else {
             None
         }
