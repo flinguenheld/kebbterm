@@ -1,9 +1,7 @@
 use crossbeam::channel::bounded;
 use crossterm::{cursor, terminal, ExecutableCommand};
-use kebbterm::{
-    mode::{counter::Counters, game::ModeGame, score::ModeScore, welcome::ModeWelcome, Mode},
-    render::{draw::render, frame::*},
-};
+use kebbterm::mode::{counter::*, game::*, score::*, welcome::*, Mode};
+use kebbterm::render::{draw::*, frame::*};
 use std::{
     io::{self},
     thread,
@@ -25,6 +23,7 @@ fn main() -> io::Result<()> {
     let mut counters = Counters::new();
 
     // Render --
+    render_init();
     let (s, r) = bounded::<Frame>(1);
     let render_thread = thread::spawn(move || {
         let mut previous_frame = new_frame();
