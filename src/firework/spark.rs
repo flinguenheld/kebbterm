@@ -68,8 +68,7 @@ impl Spark {
 
             spark.branches.push(Branch {
                 trajectory: traj,
-                // tail: Tail::new(*c, 4, center, vec![160, 196, 202, 208]),
-                tail: Tail::new(*c, 4, center, vec![208, 202, 196, 160]),
+                tail: Tail::new(*c, center, vec![208, 202, 196, 160]),
                 is_done: false,
             });
         }

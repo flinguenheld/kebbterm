@@ -1,6 +1,6 @@
 use crate::{
     firework::{flare::GroundFlare, rocket::Rocket, shape::Shape, spark::Spark, Check, Run},
-    geometry::{Point, NB_COLS},
+    geometry::NB_COLS,
     mode::counter::Counters,
     mode::Mode,
     render::frame::{Drawable, Frame},
@@ -50,7 +50,8 @@ impl ModeGame {
                         return Ok(());
                     }
                     KeyCode::Enter => {
-                        self.rockets.push(Rocket::new());
+                        self.rockets
+                            .push(Rocket::new(vec![220, 222, 223, 248, 241]));
                     }
                     KeyCode::Char(' ') => {
                         if let Some(selected_chars) = take_chars(&mut self.chars, 10) {
@@ -70,7 +71,8 @@ impl ModeGame {
                         }
                     }
                     KeyCode::Tab => {
-                        self.shape_rockets.push(Rocket::new());
+                        self.shape_rockets
+                            .push(Rocket::new(vec![51, 50, 49, 248, 241]));
                     }
 
                     KeyCode::Char(val) => {

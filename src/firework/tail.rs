@@ -5,33 +5,27 @@ use std::collections::VecDeque;
 /*
  * Display a 'tail' of one char.
  * Give it the next position and use the function 'draw' to update the frame.
+ * Tail has the given color vector length.
  */
 pub struct Tail {
     pub value: char,
     positions: VecDeque<Point>,
-    length: usize,
-
+    // length: usize,
     colors: Vec<u8>,
 }
 
 impl Tail {
-    pub fn new(
-        new_value: char,
-        new_length: usize,
-        first_position: Point,
-        new_colors: Vec<u8>,
-    ) -> Tail {
+    pub fn new(new_value: char, first_position: Point, new_colors: Vec<u8>) -> Tail {
         Tail {
             value: new_value,
             positions: VecDeque::from([first_position]),
-            length: new_length,
             colors: new_colors,
         }
     }
 
     pub fn push(&mut self, point: Point) {
         self.positions.push_front(point);
-        if self.positions.len() > self.length {
+        if self.positions.len() > self.colors.len() {
             self.positions.pop_back();
         }
     }

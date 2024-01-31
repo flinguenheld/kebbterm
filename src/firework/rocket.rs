@@ -19,16 +19,15 @@ pub struct Rocket {
 }
 
 impl Rocket {
-    pub fn new() -> Rocket {
+    pub fn new(colors: Vec<u8>) -> Rocket {
         let rocket = Rocket {
             tail: Tail::new(
                 '∆',
-                5,
                 Point {
                     x: rand::thread_rng().gen_range(10, NB_COLS - 10),
                     y: NB_ROWS - 1,
                 },
-                vec![220, 222, 223, 248, 241],
+                colors,
             ),
 
             speed: Speed::new(

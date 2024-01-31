@@ -139,12 +139,10 @@ impl Flare {
         Flare {
             tail: Tail::new(
                 value,
-                5,
                 Point {
                     x: new_position,
                     y: NB_ROWS - 2,
                 },
-                // vec![201, 207, 212, 218, 244],
                 vec![147, 141, 135, 129, 91],
             ),
 
