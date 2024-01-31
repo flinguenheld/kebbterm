@@ -1,5 +1,6 @@
 pub mod flare;
 pub mod rocket;
+pub mod shape;
 pub mod spark;
 pub mod tail;
 

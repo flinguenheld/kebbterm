@@ -53,7 +53,7 @@ fn main() -> io::Result<()> {
 
         // --
         let _ = s.send(frame);
-        thread::sleep(Duration::from_millis(1));
+        thread::sleep(Duration::from_millis(4));
     }
 
     // Cleanup --

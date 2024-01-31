@@ -1,6 +1,6 @@
 use crate::{
-    firework::{flare::GroundFlare, rocket::Rocket, spark::Spark, Check, Run},
-    geometry::NB_COLS,
+    firework::{flare::GroundFlare, rocket::Rocket, shape::Shape, spark::Spark, Check, Run},
+    geometry::{Point, NB_COLS},
     mode::counter::Counters,
     mode::Mode,
     render::frame::{Drawable, Frame},
@@ -13,6 +13,10 @@ pub struct ModeGame {
     rockets: Vec<Rocket>,
     sparks: Vec<Spark>,
     ground_flares: Vec<GroundFlare>,
+
+    shape_rockets: Vec<Rocket>,
+    shapes: Vec<Shape>,
+
     chars: Vec<char>,
 }
 
@@ -22,6 +26,9 @@ impl ModeGame {
             rockets: Vec::new(),
             sparks: Vec::new(),
             ground_flares: Vec::new(),
+
+            shape_rockets: Vec::new(),
+            shapes: Vec::new(),
 
             chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'".chars().collect(),
         }
@@ -62,11 +69,14 @@ impl ModeGame {
                             }
                         }
                     }
+                    KeyCode::Tab => {
+                        self.shape_rockets.push(Rocket::new());
+                    }
 
                     KeyCode::Char(val) => {
-                        if check_value(&mut self.sparks, &val, &mut counters.success) == false
-                            && check_value(&mut self.ground_flares, &val, &mut counters.success)
-                                == false
+                        if !check_value(&mut self.sparks, &val, &mut counters.success)
+                            && !check_value(&mut self.ground_flares, &val, &mut counters.success)
+                            && !check_value(&mut self.shapes, &val, &mut counters.success)
                         {
                             counters.fails += 1;
                         }
@@ -93,11 +103,32 @@ impl ModeGame {
         });
         run_draw(&mut self.rockets, frame);
 
+        // Shapes --
+        self.shape_rockets.retain_mut(|sr| {
+            if sr.exploded() {
+                if let Some(selected) =
+                    take_chars(&mut self.chars, rand::thread_rng().gen_range(1, 4))
+                {
+                    self.shapes
+                        .push(Shape::new(*sr.position().unwrap(), selected));
+                    counters.shapes += 1;
+                };
+
+                false
+            } else {
+                true
+            }
+        });
+        run_draw(&mut self.shape_rockets, frame);
+
+        get_char_back(&mut self.chars, &mut self.shapes, &mut counters.misses);
+        run_draw(&mut self.shapes, frame);
+
         // Sparks --
         get_char_back(&mut self.chars, &mut self.sparks, &mut counters.misses);
         run_draw(&mut self.sparks, frame);
 
-        // Flare --
+        // Flares --
         run_draw(&mut self.ground_flares, frame);
         get_char_back(
             &mut self.chars,

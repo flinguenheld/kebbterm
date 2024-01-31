@@ -40,9 +40,9 @@ impl ModeScore {
             }
         }
 
-        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 12, 23, 40, 236);
+        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 14, 24, 40, 236);
 
-        let y = NB_ROWS / 2 - 10;
+        let y = NB_ROWS / 2 - 12;
         let fore_color = 250;
 
         let time_str = {
@@ -73,14 +73,20 @@ impl ModeScore {
         print(
             frame,
             y + 11,
+            &format!("Shapes: {}", counters.shapes),
+            fore_color,
+        );
+        print(
+            frame,
+            y + 12,
             &format!("Ground flares: {}", counters.groundflares),
             fore_color,
         );
-        print(frame, y + 13, "━━━━━━━━━━━━━━━", 235);
+        print(frame, y + 14, "━━━━━━━━━━━━━━━", 235);
 
-        print(frame, y + 15, "C -> Continue", fore_color);
-        print(frame, y + 16, "N -> New game", fore_color);
-        print(frame, y + 18, "ESC -> Exit", fore_color);
+        print(frame, y + 16, "C -> Continue", fore_color);
+        print(frame, y + 17, "N -> New game", fore_color);
+        print(frame, y + 19, "ESC -> Exit", fore_color);
 
         Ok(())
     }
