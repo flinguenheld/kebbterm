@@ -1,6 +1,7 @@
 pub mod flare;
 pub mod rocket;
 pub mod shape;
+pub mod shape_skeletons;
 pub mod spark;
 pub mod tail;
 

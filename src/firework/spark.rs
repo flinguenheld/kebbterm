@@ -11,6 +11,7 @@ struct Branch {
     trajectory: u8,
     tail: Tail,
     is_done: bool,
+    is_dying: bool,
 }
 
 /*
@@ -43,12 +44,13 @@ impl Spark {
             speed: Speed::new(
                 Point {
                     // Fast on start
-                    x: rand::thread_rng().gen_range(2, 8),
+                    // x: rand::thread_rng().gen_range(2, 8),
+                    x: rand::thread_rng().gen_range(20, 50),
                     y: 2,
                 },
                 Point {
                     // Slow at the end
-                    x: rand::thread_rng().gen_range(70, 90),
+                    x: rand::thread_rng().gen_range(170, 190),
                     y: 8,
                 },
             ),
@@ -70,6 +72,7 @@ impl Spark {
                 trajectory: traj,
                 tail: Tail::new(*c, center, vec![208, 202, 196, 160]),
                 is_done: false,
+                is_dying: false,
             });
         }
         spark
@@ -78,17 +81,13 @@ impl Spark {
 
 impl Check for Spark {
     fn check_value(&mut self, val: &char) -> bool {
-        if self
+        if let Some(branch) = self
             .branches
             .iter_mut()
-            .filter(|b| b.tail.value == *val)
-            .map(|b| {
-                b.is_done = true;
-                b.tail.set_color(vec![82, 76, 70, 34]);
-            })
-            .count()
-            == 1
+            .find(|b| b.tail.value == *val && !b.is_done)
         {
+            branch.is_done = true;
+            branch.tail.set_color(vec![82, 76, 70, 34]);
             self.nb_success += 1;
             true
         } else {
@@ -117,12 +116,11 @@ impl Run for Spark {
             self.speed.up_by_x(self.nb_moves as f32);
 
             for branch in self.branches.iter_mut() {
-                // Too late for the user --
-                if self.nb_moves >= self.max_moves && branch.is_done == false {
-                    branch.is_done = true;
+                if self.nb_moves >= self.max_moves && !branch.is_dying {
+                    branch.is_dying = true;
                 }
 
-                if branch.is_done == true {
+                if branch.is_dying == true {
                     branch.tail.pop();
                 } else {
                     if let Some(current) = branch.tail.current_position() {

@@ -55,7 +55,7 @@ impl GroundFlare {
 
 impl Check for GroundFlare {
     fn check_value(&mut self, val: &char) -> bool {
-        for f in self.flares.iter_mut() {
+        for f in self.flares.iter_mut().filter(|f| !f.done) {
             if f.check_value(val) == true {
                 self.nb_success += 1;
                 return true;
@@ -169,7 +169,6 @@ impl Flare {
         if self.tail.value == *value {
             self.speed.up_by_x((NB_ROWS - 3) as f32);
             self.done = true;
-            // self.tail.set_color(vec![76, 70, 72, 28, 22]);
             self.tail.set_color(vec![118, 82, 76, 70, 34]);
             true
         } else {

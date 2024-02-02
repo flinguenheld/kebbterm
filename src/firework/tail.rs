@@ -30,8 +30,12 @@ impl Tail {
         }
     }
 
-    pub fn set_color(&mut self, new_colors: Vec<u8>) {
-        self.colors = new_colors
+    pub fn set_color(&mut self, mut new_colors: Vec<u8>) {
+        while new_colors.len() > self.colors.len() {
+            new_colors.pop();
+        }
+
+        self.colors = new_colors;
     }
 
     pub fn current_position(&self) -> Option<&Point> {
@@ -47,9 +51,9 @@ impl Tail {
     }
 
     pub fn draw(&self, frame: &mut Frame) {
-        for iter in self.positions.iter().rev().zip(self.colors.iter().rev()) {
-            frame[iter.0.y][iter.0.x].value = self.value;
-            frame[iter.0.y][iter.0.x].fore_color = style::Color::AnsiValue(*iter.1);
+        for (pt, color) in self.positions.iter().rev().zip(self.colors.iter().rev()) {
+            frame[pt.y][pt.x].value = self.value;
+            frame[pt.y][pt.x].fore_color = style::Color::AnsiValue(*color);
         }
     }
 }

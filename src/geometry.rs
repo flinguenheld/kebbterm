@@ -31,7 +31,53 @@ impl Point {
         }
     }
 }
-
+// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------ Color ---
+pub struct ColorRGB {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+}
+impl ColorRGB {
+    pub fn plus_block(&mut self, letter: char, value: u8) {
+        match letter {
+            'r' => {
+                if self.r as u16 + value as u16 <= 255 {
+                    self.r += value
+                }
+            }
+            'g' => {
+                if self.g as u16 + value as u16 <= 255 {
+                    self.g += value
+                }
+            }
+            _ => {
+                if self.b as u16 + value as u16 <= 255 {
+                    self.b += value
+                }
+            }
+        }
+    }
+    pub fn minus_block(&mut self, letter: char, value: u8) {
+        match letter {
+            'r' => {
+                if self.r >= value {
+                    self.r -= value
+                }
+            }
+            'g' => {
+                if self.g >= value {
+                    self.g -= value
+                }
+            }
+            _ => {
+                if self.b >= value {
+                    self.b -= value
+                }
+            }
+        }
+    }
+}
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Speed ---
 /*
