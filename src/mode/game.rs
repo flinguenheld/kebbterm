@@ -1,13 +1,13 @@
 use crate::{
     firework::{flare::GroundFlare, rocket::Rocket, shape::Shape, spark::Spark, Check, Run},
-    geometry::NB_COLS,
+    geometry::{Point, NB_COLS, NB_ROWS},
     mode::counter::Counters,
     mode::Mode,
     render::frame::{Drawable, Frame},
 };
 use crossterm::event::{self, Event, KeyCode};
 use rand::Rng;
-use std::{io, time::Duration};
+use std::{collections::HashSet, io, time::Duration};
 
 pub struct ModeGame {
     rockets: Vec<Rocket>,
@@ -48,29 +48,45 @@ impl ModeGame {
                         return Ok(());
                     }
                     KeyCode::Enter => {
-                        self.rockets
-                            .push(Rocket::new('∆', vec![220, 222, 223, 248, 241]));
+                        self.rockets.push(Rocket::new(
+                            '∆',
+                            vec![220, 222, 223, 248, 241],
+                            find_free_position(vec![
+                                self.rockets
+                                    .iter()
+                                    .map(|r| r.position().unwrap_or(&Point { x: 10, y: 10 }).x)
+                                    .collect(),
+                                // self.sparks.iter().map(|r| r.position().x).collect(),
+                                self.shapes.iter().map(|r| r.position().x).collect(),
+                            ]),
+                        ));
                     }
                     KeyCode::Char(' ') => {
                         if let Some(selected_chars) = take_chars(&mut self.chars, 10) {
-                            loop {
-                                let pos = rand::thread_rng().gen_range(10, NB_COLS - 10);
-                                if !(self
+                            self.ground_flares.push(GroundFlare::new(
+                                find_free_position(vec![self
                                     .ground_flares
                                     .iter()
-                                    .any(|f| pos < f.position_x() + 5 && pos > f.position_x() - 5))
-                                {
-                                    self.ground_flares
-                                        .push(GroundFlare::new(selected_chars, pos));
-                                    counters.groundflares += 1;
-                                    break;
-                                }
-                            }
+                                    .map(|r| r.position().x)
+                                    .collect()]),
+                                selected_chars,
+                            ));
+                            counters.groundflares += 1;
                         }
                     }
                     KeyCode::Tab => {
-                        self.rockets
-                            .push(Rocket::new('⍙', vec![51, 50, 49, 248, 241]));
+                        self.rockets.push(Rocket::new(
+                            '⍙',
+                            vec![51, 50, 49, 248, 241],
+                            find_free_position(vec![
+                                self.rockets
+                                    .iter()
+                                    .map(|r| r.position().unwrap_or(&Point { x: 10, y: 10 }).x)
+                                    .collect(),
+                                // self.sparks.iter().map(|r| r.position().x).collect(),
+                                self.shapes.iter().map(|r| r.position().x).collect(),
+                            ]),
+                        ));
                     }
 
                     KeyCode::Char(val) => {
@@ -182,4 +198,38 @@ fn take_chars(chars: &mut Vec<char>, amount: usize) -> Option<Vec<char>> {
     } else {
         None
     }
+}
+
+// ----------------------------------------------------------------------------
+// --------------------------------------------------------------- Position ---
+// List all x values which aren't close to all element's x values.
+// Then return randomly one point.
+fn find_free_position(busy_x: Vec<Vec<usize>>) -> Point {
+    let mut slots: HashSet<usize> = (10..(NB_COLS - 10)).collect();
+
+    for tab in busy_x.iter() {
+        for val in tab.iter() {
+            if *val > 8 {
+                for i in (val - 8)..=(val + 8) {
+                    slots.remove(&i);
+                }
+            }
+        }
+    }
+
+    let mut point = Point {
+        x: 0,
+        y: NB_ROWS - 1,
+    };
+
+    if slots.is_empty() {
+        dbg!("Not enough slots");
+        point.x = rand::thread_rng().gen_range(10, NB_COLS - 10);
+    } else {
+        point.x = *slots
+            .iter()
+            .nth(rand::thread_rng().gen_range(0, slots.len()))
+            .unwrap() as usize;
+    }
+    point
 }

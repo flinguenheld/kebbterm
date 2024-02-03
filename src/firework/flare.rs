@@ -23,20 +23,19 @@ pub struct GroundFlare {
 
     flare_counter: u16,
     flare_nb_max: u16,
-    position_x: usize,
-
+    position: Point,
     nb_success: u16,
 }
 
 impl GroundFlare {
-    pub fn new(characters: Vec<char>, position: usize) -> GroundFlare {
+    pub fn new(position: Point, characters: Vec<char>) -> GroundFlare {
         let ground_flare = GroundFlare {
             flares: Vec::new(),
             chars: characters,
 
             loop_counter: 0,
             loop_counter_step: rand::thread_rng().gen_range(100, 150),
-            position_x: position,
+            position,
 
             flare_counter: 0,
             flare_nb_max: rand::thread_rng().gen_range(25, 40),
@@ -47,9 +46,8 @@ impl GroundFlare {
         ground_flare
     }
 
-    // Useful in main to take GroundFlares away from each others.
-    pub fn position_x(&self) -> usize {
-        self.position_x
+    pub fn position(&self) -> Point {
+        self.position
     }
 }
 
@@ -92,7 +90,7 @@ impl Run for GroundFlare {
             || self.flare_counter == 0
         {
             self.flares.push(Flare::new(
-                self.position_x,
+                self.position,
                 self.chars
                     .remove(rand::thread_rng().gen_range(0, self.chars.len())),
             ));
@@ -135,16 +133,9 @@ struct Flare {
 }
 
 impl Flare {
-    fn new(new_position: usize, value: char) -> Flare {
+    fn new(position: Point, value: char) -> Flare {
         Flare {
-            tail: Tail::new(
-                value,
-                Point {
-                    x: new_position,
-                    y: NB_ROWS - 2,
-                },
-                vec![147, 141, 135, 129, 91],
-            ),
+            tail: Tail::new(value, position, vec![147, 141, 135, 129, 91]),
 
             speed: Speed::new(
                 Point {

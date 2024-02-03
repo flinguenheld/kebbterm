@@ -1,5 +1,4 @@
-use super::{shape_skeletons::skeleton, Check, Run};
-use crate::{geometry::*, render::frame::*};
+use crate::{firework::shape_skeletons::*, firework::*, geometry::*, render::frame::*};
 use crossterm::style::{self};
 use rand::Rng;
 
@@ -67,6 +66,10 @@ impl Shape {
                 )
             })
             .collect();
+    }
+
+    pub fn position(&self) -> Point {
+        self.center
     }
 }
 

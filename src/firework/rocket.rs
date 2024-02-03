@@ -1,7 +1,7 @@
 use crate::{
     firework::tail::Tail,
     firework::Run,
-    geometry::{Point, Speed, NB_COLS, NB_ROWS},
+    geometry::{Point, Speed, NB_ROWS},
     render::frame::{Drawable, Frame},
 };
 use rand::Rng;
@@ -14,23 +14,13 @@ use rand::Rng;
 pub struct Rocket {
     tail: Tail,
     speed: Speed,
-
     explosion_row: usize,
 }
 
 impl Rocket {
-    pub fn new(symbol: char, colors: Vec<u8>) -> Rocket {
+    pub fn new(symbol: char, colors: Vec<u8>, position: Point) -> Rocket {
         let rocket = Rocket {
-            tail: Tail::new(
-                // '∆',
-                symbol,
-                Point {
-                    x: rand::thread_rng().gen_range(10, NB_COLS - 10),
-                    y: NB_ROWS - 1,
-                },
-                colors,
-            ),
-
+            tail: Tail::new(symbol, position, colors),
             speed: Speed::new(
                 Point {
                     // Fast at the bottom
@@ -43,8 +33,7 @@ impl Rocket {
                     y: 2,
                 },
             ),
-
-            explosion_row: rand::thread_rng().gen_range(8, NB_ROWS / 2),
+            explosion_row: rand::thread_rng().gen_range(8, NB_ROWS / 2 + 2),
         };
 
         rocket

@@ -24,6 +24,7 @@ struct Branch {
 pub struct Spark {
     branches: Vec<Branch>,
     speed: Speed,
+    center: Point,
 
     max_moves: u16,
     nb_moves: u16,
@@ -32,9 +33,10 @@ pub struct Spark {
 }
 
 impl Spark {
-    pub fn new(center: Point, chars: Vec<char>) -> Spark {
+    pub fn new(explosion_center: Point, chars: Vec<char>) -> Spark {
         let mut spark = Spark {
             branches: Vec::new(),
+            center: explosion_center,
 
             max_moves: 8, // Adapt with speed calculation
             nb_moves: 0,
@@ -70,12 +72,16 @@ impl Spark {
 
             spark.branches.push(Branch {
                 trajectory: traj,
-                tail: Tail::new(*c, center, vec![208, 202, 196, 160]),
+                tail: Tail::new(*c, explosion_center, vec![208, 202, 196, 160]),
                 is_done: false,
                 is_dying: false,
             });
         }
         spark
+    }
+
+    pub fn position(&self) -> Point {
+        self.center
     }
 }
 
@@ -98,11 +104,7 @@ impl Check for Spark {
 
 impl Run for Spark {
     fn is_done(&self) -> Option<(Vec<char>, u16)> {
-        if self
-            .branches
-            .iter()
-            .all(|b| b.is_done == true && b.tail.is_empty())
-        {
+        if self.branches.iter().all(|b| b.tail.is_empty()) {
             let chars: Vec<char> = self.branches.iter().map(|b| b.tail.value).collect();
             let misses = chars.len() as u16 - self.nb_success;
             Some((chars, misses))

@@ -10,7 +10,6 @@ use std::collections::VecDeque;
 pub struct Tail {
     pub value: char,
     positions: VecDeque<Point>,
-    // length: usize,
     colors: Vec<u8>,
 }
 
