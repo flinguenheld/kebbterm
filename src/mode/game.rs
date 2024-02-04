@@ -5,7 +5,7 @@ use crate::{
     mode::Mode,
     render::frame::{Drawable, Frame},
 };
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use rand::Rng;
 use std::{collections::HashSet, io, time::Duration};
 
@@ -41,13 +41,21 @@ impl ModeGame {
         // Input
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
-                match key_event.code {
-                    KeyCode::Esc => {
+                match key_event {
+                    KeyEvent {
+                        modifiers: KeyModifiers::CONTROL,
+                        code: KeyCode::Char('c'),
+                        ..
+                    } => {
                         counters.elapsed_time += counters.start_time.elapsed().as_secs();
                         *mode = Mode::Score;
                         return Ok(());
                     }
-                    KeyCode::Enter => {
+
+                    KeyEvent {
+                        code: KeyCode::Enter,
+                        ..
+                    } => {
                         self.rockets.push(Rocket::new(
                             '∆',
                             vec![220, 222, 223, 248, 241],
@@ -61,7 +69,11 @@ impl ModeGame {
                             ]),
                         ));
                     }
-                    KeyCode::Char(' ') => {
+
+                    KeyEvent {
+                        code: KeyCode::Char(' '),
+                        ..
+                    } => {
                         if let Some(selected_chars) = take_chars(&mut self.chars, 10) {
                             self.ground_flares.push(GroundFlare::new(
                                 find_free_position(vec![self
@@ -74,7 +86,10 @@ impl ModeGame {
                             counters.groundflares += 1;
                         }
                     }
-                    KeyCode::Tab => {
+
+                    KeyEvent {
+                        code: KeyCode::Tab, ..
+                    } => {
                         self.rockets.push(Rocket::new(
                             '⍙',
                             vec![51, 50, 49, 248, 241],
@@ -89,7 +104,10 @@ impl ModeGame {
                         ));
                     }
 
-                    KeyCode::Char(val) => {
+                    KeyEvent {
+                        code: KeyCode::Char(val),
+                        ..
+                    } => {
                         if !check_value(&mut self.sparks, &val, &mut counters.success)
                             && !check_value(&mut self.ground_flares, &val, &mut counters.success)
                             && !check_value(&mut self.shapes, &val, &mut counters.success)

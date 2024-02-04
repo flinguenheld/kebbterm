@@ -1,7 +1,7 @@
 use crate::render::frame::Frame;
 use crossterm::{
     cursor,
-    style::*,
+    style::{Attribute, Color, Print, SetAttribute, SetBackgroundColor, SetForegroundColor},
     terminal::{Clear, ClearType},
     QueueableCommand,
 };
@@ -9,6 +9,7 @@ use std::io::{self, Write};
 
 pub fn render_init() {
     let mut stdout = io::stdout();
+
     stdout.queue(SetAttribute(Attribute::Bold)).unwrap();
     stdout
         .queue(SetBackgroundColor(Color::AnsiValue(235)))
@@ -18,8 +19,8 @@ pub fn render_init() {
 
 pub fn render(frame: &Frame, previous_frame: &Frame) {
     let mut stdout = io::stdout();
-    for row in 1..frame.len() {
-        for col in 1..frame[0].len() {
+    for row in 0..frame.len() {
+        for col in 0..frame[0].len() {
             let case = &frame[row][col];
             let then_case = &previous_frame[row][col];
 

@@ -3,7 +3,7 @@ use crate::{
     mode::{counter::Counters, Mode},
     render::frame::{paint, print, Frame},
 };
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use std::{io, time::Duration};
 
 pub struct ModeScore {}
@@ -21,17 +21,27 @@ impl ModeScore {
     ) -> io::Result<()> {
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
-                match key_event.code {
-                    KeyCode::Esc => {
+                match key_event {
+                    KeyEvent {
+                        modifiers: KeyModifiers::CONTROL,
+                        code: KeyCode::Char('c'),
+                        ..
+                    } => {
                         *mode = Mode::Quit;
                         return Ok(());
                     }
-                    KeyCode::Char('C') | KeyCode::Char('c') => {
+                    KeyEvent {
+                        code: KeyCode::Char('c'),
+                        ..
+                    } => {
                         *mode = Mode::Game(false);
                         counters.reset_timer();
                         return Ok(());
                     }
-                    KeyCode::Char('N') | KeyCode::Char('n') => {
+                    KeyEvent {
+                        code: KeyCode::Char('n'),
+                        ..
+                    } => {
                         *mode = Mode::Game(true);
                         return Ok(());
                     }
@@ -59,11 +69,11 @@ impl ModeScore {
 
         print(frame, y, "PAUSE", fore_color);
         print(frame, y + 2, "━━━━━━━━━━━━━━━", 235);
-        print(frame, y + 4, &time_str, 32);
+        print(frame, y + 4, &time_str, fore_color);
 
         print(frame, y + 6, &format!("Success: {}", counters.success), 34);
-        print(frame, y + 7, &format!("Fails: {}", counters.fails), 124);
-        print(frame, y + 8, &format!("Misses: {}", counters.misses), 172);
+        print(frame, y + 7, &format!("Misses: {}", counters.misses), 172);
+        print(frame, y + 8, &format!("Fails: {}", counters.fails), 124);
         print(
             frame,
             y + 10,
@@ -86,7 +96,7 @@ impl ModeScore {
 
         print(frame, y + 16, "C -> Continue", fore_color);
         print(frame, y + 17, "N -> New game", fore_color);
-        print(frame, y + 19, "ESC -> Exit", fore_color);
+        print(frame, y + 19, "CTRL + C ->  Exit", fore_color);
 
         Ok(())
     }

@@ -18,7 +18,8 @@ pub fn new_frame() -> Frame {
     }; NB_COLS]; NB_ROWS]
 }
 
-// TODO: Factorise with Welcome
+// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------ Print ---
 pub fn print(frame: &mut Frame, y: usize, text: &str, color: u8) {
     let start_x = NB_COLS / 2 - text.chars().count() / 2 - 1;
     for (x, c) in text.chars().enumerate() {
@@ -35,6 +36,8 @@ pub fn paint(frame: &mut Frame, x: usize, y: usize, height: usize, width: usize,
     }
 }
 
+// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------ Trait ---
 pub trait Drawable {
     fn draw(&self, frame: &mut Frame);
 }
