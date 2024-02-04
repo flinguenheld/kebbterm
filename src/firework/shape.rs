@@ -24,20 +24,20 @@ impl Shape {
 
             explosion_step: 0,
             colors: vec![
-                124, 160, 196, 197, 202, 203, 204, 208, 209, 210, 214, 215, 216, 220, 221, 222,
-                223, 226, 227, 228, 229, 230, 231,
+                237, 240, 245, 216, 217, 218, 219, 225, 224, 223, 222, 221, 220, 226, 227, 228,
+                229, 230, 231, 240, 220, 214, 208, 202, 196,
             ],
             colors_checked: vec![34, 35, 40, 41, 46, 47, 48, 76, 77, 82, 83, 84, 118, 119],
 
             speed: Speed::new(
                 Point {
                     // Fast on start
-                    x: rand::thread_rng().gen_range(10, 20),
+                    x: rand::thread_rng().gen_range(20, 25),
                     y: 20,
                 },
                 Point {
                     // Slow at the end
-                    x: rand::thread_rng().gen_range(170, 180),
+                    x: rand::thread_rng().gen_range(180, 190),
                     y: 2,
                 },
             ),
@@ -120,23 +120,14 @@ impl Run for Shape {
             self.speed.up_by_x(self.colors.len() as f32);
 
             match self.explosion_step {
-                s if s < 4 => {
+                s if s < 5 => {
                     self.upload_skeleton(self.explosion_step as usize);
                     // self.explosion_step += 1;
                 }
-                4 => {
-                    self.upload_skeleton(rand::thread_rng().gen_range(4, 9));
+                5 => {
+                    self.upload_skeleton(rand::thread_rng().gen_range(5, 12));
                     // self.explosion_step = 255;
                 }
-                // s if s % 2 == 0 => {
-                //     self.current_skeleton
-                //         .iter_mut()
-                //         // .filter(|(pt, _, _)| pt.x % 2 == 0)
-                //         .for_each(|(pt, _, _)| {
-                //             pt.plus_y();
-                //             pt.plus_x()
-                //         });
-                // }
                 _ => {}
             }
             self.explosion_step += 1;
