@@ -1,5 +1,6 @@
 pub mod counter;
 pub mod game;
+pub mod option;
 pub mod score;
 pub mod welcome;
 

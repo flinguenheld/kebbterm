@@ -1,4 +1,5 @@
 use crate::{
+    files::option::Options,
     firework::{flare::GroundFlare, rocket::Rocket, shape::Shape, spark::Spark, Check, Run},
     geometry::{Point, NB_COLS, NB_ROWS},
     mode::counter::Counters,
@@ -20,16 +21,40 @@ pub struct ModeGame {
 }
 
 impl ModeGame {
-    pub fn new() -> ModeGame {
-        ModeGame {
+    pub fn new(options: &Options) -> ModeGame {
+        let mut mode = ModeGame {
             rockets: Vec::new(),
 
             sparks: Vec::new(),
             ground_flares: Vec::new(),
             shapes: Vec::new(),
 
-            chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^$[]|&~€!{}%~#?@()*_-:;<>+-=`\\/\"'".chars().collect(),
+            chars: Vec::new(),
+        };
+
+        if options.alpha {
+            mode.chars
+                .append(&mut "abcdefghijklmnopqrstuvwxyz".chars().collect());
         }
+        if options.cap {
+            mode.chars
+                .append(&mut "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect());
+        }
+        if options.digit {
+            mode.chars.append(&mut "0123456789".chars().collect());
+        }
+        if options.symbol {
+            mode.chars
+                .append(&mut "^$[]|&~!{}%~#?@()*_-:;<>+-=`\\/\"'".chars().collect());
+        }
+        if options.french {
+            mode.chars.append(&mut "éùèàûêîâôüëïæœç€".chars().collect());
+        }
+        if options.cap && options.french {
+            mode.chars.append(&mut "ÉÙÈÀÛÊÎÂÔÜËÏÆŒÇ".chars().collect());
+        }
+
+        mode
     }
 
     pub fn mode_loop(

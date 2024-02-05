@@ -1,5 +1,6 @@
 use crossbeam::channel::bounded;
 use crossterm::{cursor, terminal, ExecutableCommand};
+use kebbterm::files::option::Options;
 use kebbterm::mode::{counter::*, game::*, score::*, welcome::*, Mode};
 use kebbterm::render::{draw::*, frame::*};
 use std::{
@@ -15,12 +16,14 @@ fn main() -> io::Result<()> {
     stdout.execute(terminal::EnterAlternateScreen)?;
     stdout.execute(cursor::Hide)?;
 
+    let mut counters = Counters::new();
+    let mut options = Options::new();
+    options.read()?;
+
     let mut mode = Mode::Welcome;
     let mut mode_welcome = ModeWelcome::new();
-    let mut mode_game = ModeGame::new();
+    let mut mode_game = ModeGame::new(&options);
     let mut mode_score = ModeScore::new();
-
-    let mut counters = Counters::new();
 
     // Render --
     render_init();
@@ -42,7 +45,7 @@ fn main() -> io::Result<()> {
             Mode::Game(new) => {
                 if new == true {
                     counters = Counters::new();
-                    mode_game = ModeGame::new();
+                    mode_game = ModeGame::new(&options);
                     mode = Mode::Game(false);
                 }
                 mode_game.mode_loop(&mut frame, &mut mode, &mut counters)?
