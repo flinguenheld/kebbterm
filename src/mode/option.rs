@@ -56,7 +56,6 @@ impl ModeOption {
                         5 => self.options.french = !self.options.french,
                         _ => self.options.french_cap = !self.options.french_cap,
                     },
-
                     _ => {}
                 }
             }
@@ -97,7 +96,7 @@ fn up_menu(options: &mut Options, current_index: usize) -> Menu {
             format!("Letters: {}", options.letter),
             format!("Capitals: {}", options.capital),
             format!("Numbers: {}", options.digit),
-            format!("Symbol: {}", options.symbol),
+            format!("Symbols: {}", options.symbol),
             format!("French: {}", options.french),
             format!("French cap: {}", options.french_cap),
         ],

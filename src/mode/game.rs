@@ -111,7 +111,6 @@ impl ModeGame {
                                     .collect()]),
                                 selected_chars,
                             ));
-                            counters.groundflares += 1;
                         }
                     }
 
@@ -157,22 +156,16 @@ impl ModeGame {
                         if let Some(selected) =
                             take_chars(&mut self.chars, rand::thread_rng().gen_range(3, 10))
                         {
-                            if !selected.is_empty() {
-                                self.sparks
-                                    .push(Spark::new(*rocket.position().unwrap(), selected));
-                                counters.sparks += 1;
-                            }
+                            self.sparks
+                                .push(Spark::new(*rocket.position().unwrap(), selected));
                         };
                     }
                     _ => {
                         if let Some(selected) =
                             take_chars(&mut self.chars, rand::thread_rng().gen_range(1, 4))
                         {
-                            if !selected.is_empty() {
-                                self.shapes
-                                    .push(Shape::new(*rocket.position().unwrap(), selected));
-                                counters.shapes += 1;
-                            }
+                            self.shapes
+                                .push(Shape::new(*rocket.position().unwrap(), selected));
                         };
                     }
                 }
