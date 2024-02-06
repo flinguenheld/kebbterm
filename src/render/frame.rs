@@ -17,27 +17,3 @@ pub fn new_frame() -> Frame {
         back_color: style::Color::AnsiValue(235),
     }; NB_COLS]; NB_ROWS]
 }
-
-// ----------------------------------------------------------------------------
-// ------------------------------------------------------------------ Print ---
-pub fn print(frame: &mut Frame, y: usize, text: &str, color: u8) {
-    let start_x = NB_COLS / 2 - text.chars().count() / 2 - 1;
-    for (x, c) in text.chars().enumerate() {
-        frame[y][start_x + x].value = c;
-        frame[y][start_x + x].fore_color = style::Color::AnsiValue(color);
-    }
-}
-
-pub fn paint(frame: &mut Frame, x: usize, y: usize, height: usize, width: usize, color: u8) {
-    for row in y..(y + height) {
-        for col in x..(x + width) {
-            frame[row][col].back_color = style::Color::AnsiValue(color);
-        }
-    }
-}
-
-// ----------------------------------------------------------------------------
-// ------------------------------------------------------------------ Trait ---
-pub trait Drawable {
-    fn draw(&self, frame: &mut Frame);
-}

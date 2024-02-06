@@ -1,54 +1,74 @@
 use crate::{
     geometry::{NB_COLS, NB_ROWS},
-    mode::Mode,
-    render::frame::{paint, print, Frame},
+    mode::utils::*,
+    mode::*,
+    render::frame::*,
 };
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{self, Event, KeyCode};
 use std::{io, time::Duration};
 
-pub struct ModeWelcome {}
+pub struct ModeWelcome {
+    menu: Menu,
+}
 
 impl ModeWelcome {
     pub fn new() -> ModeWelcome {
-        ModeWelcome {}
+        ModeWelcome {
+            menu: Menu::new(
+                vec!["PLAY".to_string(), "OPTION".to_string(), "EXIT".to_string()],
+                0,
+            ),
+        }
     }
 
     pub fn mode_loop(&mut self, frame: &mut Frame, mode: &mut Mode) -> io::Result<()> {
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
-                match key_event {
-                    KeyEvent {
-                        modifiers: KeyModifiers::CONTROL,
-                        code: KeyCode::Char('c'),
-                        ..
-                    } => {
-                        *mode = Mode::Quit;
+                match key_event.code {
+                    KeyCode::Enter => {
+                        match self.menu.current_selection() {
+                            0 => *mode = Mode::Game(true),
+                            1 => *mode = Mode::Option,
+                            _ => *mode = Mode::Quit,
+                        }
                         return Ok(());
                     }
-                    KeyEvent {
-                        code: KeyCode::Enter,
-                        ..
-                    } => {
-                        *mode = Mode::Game(false);
-                        return Ok(());
-                    }
+                    KeyCode::Up => self.menu.up(),
+                    KeyCode::Down => self.menu.down(),
                     _ => {}
                 }
             }
         }
 
-        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 7, 15, 40, 236);
+        // --
+        let height = 19;
+        let width = 40;
+        let y = (NB_ROWS - height) / 2;
+        let x = (NB_COLS - width) / 2;
 
-        let y = NB_ROWS / 2 - 5;
-        let fore_color = 250;
+        paint(frame, x, y - 2, height, width, COLOR_BACKGROUND);
 
-        print(frame, y, "KEBB TERM", 214);
-        print(frame, y + 2, "━━━━━━━━━━━━━━━━━", 235);
-        print(frame, y + 4, "ENTER -> Throw a rocket", fore_color);
-        print(frame, y + 5, "TAB -> Throw a rocket shape", fore_color);
-        print(frame, y + 6, "SPACE -> Start a ground flare", fore_color);
-        print(frame, y + 8, "━━━━━━━━━━━━━━━━━", 235);
-        print(frame, y + 10, "CTRL + C ->  Exit", fore_color);
+        print(frame, y, "KEBB TERM", COLOR_TITLE);
+        print(frame, y + 2, "━━━━━━━━━━━━━━━━━", COLOR_SEPARATOR);
+
+        let y = print_menu(
+            &self.menu,
+            frame,
+            y + 4,
+            COLOR_MENU_TEXT,
+            COLOR_MENU_CURRENT,
+        );
+
+        print(frame, y + 1, "━━━━━━━━━━━━━━━━━", COLOR_SEPARATOR);
+        print(frame, y + 3, "ENTER -> Throw a rocket", COLOR_KEYS_TEXT);
+        print(frame, y + 4, "TAB -> Throw a rocket shape", COLOR_KEYS_TEXT);
+        print(
+            frame,
+            y + 5,
+            "SPACE -> Start a ground flare",
+            COLOR_KEYS_TEXT,
+        );
+        print(frame, y + 7, "CTRL + C ->  Exit", COLOR_KEYS_TEXT);
 
         Ok(())
     }

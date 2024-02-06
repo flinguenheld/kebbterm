@@ -2,9 +2,10 @@ use crate::{
     files::option::Options,
     firework::{flare::GroundFlare, rocket::Rocket, shape::Shape, spark::Spark, Check, Run},
     geometry::{Point, NB_COLS, NB_ROWS},
-    mode::counter::Counters,
-    mode::Mode,
-    render::frame::{Drawable, Frame},
+    mode::counter::*,
+    mode::utils::*,
+    mode::*,
+    render::frame::*,
 };
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use rand::Rng;
@@ -21,7 +22,7 @@ pub struct ModeGame {
 }
 
 impl ModeGame {
-    pub fn new(options: &Options) -> ModeGame {
+    pub fn new() -> ModeGame {
         let mut mode = ModeGame {
             rockets: Vec::new(),
 
@@ -32,11 +33,13 @@ impl ModeGame {
             chars: Vec::new(),
         };
 
-        if options.alpha {
+        // --
+        let options = Options::new();
+        if options.letter {
             mode.chars
                 .append(&mut "abcdefghijklmnopqrstuvwxyz".chars().collect());
         }
-        if options.cap {
+        if options.capital {
             mode.chars
                 .append(&mut "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect());
         }
@@ -50,7 +53,7 @@ impl ModeGame {
         if options.french {
             mode.chars.append(&mut "éùèàûêîâôüëïæœç€".chars().collect());
         }
-        if options.cap && options.french {
+        if options.french_cap {
             mode.chars.append(&mut "ÉÙÈÀÛÊÎÂÔÜËÏÆŒÇ".chars().collect());
         }
 
@@ -154,18 +157,22 @@ impl ModeGame {
                         if let Some(selected) =
                             take_chars(&mut self.chars, rand::thread_rng().gen_range(3, 10))
                         {
-                            self.sparks
-                                .push(Spark::new(*rocket.position().unwrap(), selected));
-                            counters.sparks += 1;
+                            if !selected.is_empty() {
+                                self.sparks
+                                    .push(Spark::new(*rocket.position().unwrap(), selected));
+                                counters.sparks += 1;
+                            }
                         };
                     }
                     _ => {
                         if let Some(selected) =
                             take_chars(&mut self.chars, rand::thread_rng().gen_range(1, 4))
                         {
-                            self.shapes
-                                .push(Shape::new(*rocket.position().unwrap(), selected));
-                            counters.shapes += 1;
+                            if !selected.is_empty() {
+                                self.shapes
+                                    .push(Shape::new(*rocket.position().unwrap(), selected));
+                                counters.shapes += 1;
+                            }
                         };
                     }
                 }

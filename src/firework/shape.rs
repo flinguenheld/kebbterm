@@ -1,4 +1,10 @@
-use crate::{firework::shape_skeletons::*, firework::*, geometry::*, render::frame::*};
+use crate::{
+    firework::shape_skeletons::*,
+    firework::{Check, Run},
+    geometry::{Point, Speed},
+    mode::utils::*,
+    render::frame::*,
+};
 use crossterm::style::{self};
 use rand::Rng;
 

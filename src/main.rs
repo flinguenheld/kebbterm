@@ -1,7 +1,6 @@
 use crossbeam::channel::bounded;
 use crossterm::{cursor, terminal, ExecutableCommand};
-use kebbterm::files::option::Options;
-use kebbterm::mode::{counter::*, game::*, score::*, welcome::*, Mode};
+use kebbterm::mode::{counter::*, game::*, option::*, score::*, welcome::*, Mode};
 use kebbterm::render::{draw::*, frame::*};
 use std::{
     io::{self},
@@ -17,13 +16,12 @@ fn main() -> io::Result<()> {
     stdout.execute(cursor::Hide)?;
 
     let mut counters = Counters::new();
-    let mut options = Options::new();
-    options.read()?;
 
     let mut mode = Mode::Welcome;
-    let mut mode_welcome = ModeWelcome::new();
-    let mut mode_game = ModeGame::new(&options);
+    let mut mode_game = ModeGame::new();
+    let mut mode_option = ModeOption::new();
     let mut mode_score = ModeScore::new();
+    let mut mode_welcome = ModeWelcome::new();
 
     // Render --
     render_init();
@@ -41,16 +39,17 @@ fn main() -> io::Result<()> {
         let mut frame = new_frame();
 
         match mode {
-            Mode::Welcome => mode_welcome.mode_loop(&mut frame, &mut mode)?,
             Mode::Game(new) => {
                 if new == true {
                     counters = Counters::new();
-                    mode_game = ModeGame::new(&options);
+                    mode_game = ModeGame::new();
                     mode = Mode::Game(false);
                 }
                 mode_game.mode_loop(&mut frame, &mut mode, &mut counters)?
             }
+            Mode::Option => mode_option.mode_loop(&mut frame, &mut mode)?,
             Mode::Score => mode_score.mode_loop(&mut frame, &mut mode, &mut counters)?,
+            Mode::Welcome => mode_welcome.mode_loop(&mut frame, &mut mode)?,
             _ => break 'gameloop,
         };
 

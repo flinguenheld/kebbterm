@@ -2,7 +2,8 @@ use crate::{
     firework::tail::Tail,
     firework::{Check, Run},
     geometry::{Point, Speed, NB_ROWS},
-    render::frame::{Drawable, Frame},
+    mode::utils::*,
+    render::frame::*,
 };
 use rand::Rng;
 

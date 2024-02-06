@@ -1,7 +1,9 @@
 use crate::{
     geometry::{NB_COLS, NB_ROWS},
-    mode::{counter::Counters, Mode},
-    render::frame::{paint, print, Frame},
+    mode::counter::*,
+    mode::utils::*,
+    mode::*,
+    render::frame::*,
 };
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use std::{io, time::Duration};
@@ -45,15 +47,24 @@ impl ModeScore {
                         *mode = Mode::Game(true);
                         return Ok(());
                     }
+                    KeyEvent {
+                        code: KeyCode::Char('w'),
+                        ..
+                    } => {
+                        *mode = Mode::Welcome;
+                        return Ok(());
+                    }
                     _ => {}
                 }
             }
         }
+        // --
+        let height = 21;
+        let width = 40;
+        let y = (NB_ROWS - height) / 2;
+        let x = (NB_COLS - width) / 2;
 
-        paint(frame, NB_COLS / 2 - 20, NB_ROWS / 2 - 14, 24, 40, 236);
-
-        let y = NB_ROWS / 2 - 12;
-        let fore_color = 250;
+        paint(frame, x, y - 2, height, width, COLOR_BACKGROUND);
 
         let time_str = {
             if counters.elapsed_time / 60 == 0 {
@@ -67,36 +78,37 @@ impl ModeScore {
             }
         };
 
-        print(frame, y, "PAUSE", fore_color);
-        print(frame, y + 2, "━━━━━━━━━━━━━━━", 235);
-        print(frame, y + 4, &time_str, fore_color);
+        print(frame, y, "PAUSE", COLOR_TITLE);
+        print(frame, y + 2, "━━━━━━━━━━━━━━━", COLOR_SEPARATOR);
+        print(frame, y + 4, &time_str, COLOR_TEXT);
 
         print(frame, y + 6, &format!("Success: {}", counters.success), 34);
-        print(frame, y + 7, &format!("Misses: {}", counters.misses), 172);
+        print(frame, y + 7, &format!("Misses: {}", counters.misses), 215);
         print(frame, y + 8, &format!("Fails: {}", counters.fails), 124);
-        print(
-            frame,
-            y + 10,
-            &format!("Sparks: {}", counters.sparks),
-            fore_color,
-        );
-        print(
-            frame,
-            y + 11,
-            &format!("Shapes: {}", counters.shapes),
-            fore_color,
-        );
-        print(
-            frame,
-            y + 12,
-            &format!("Ground flares: {}", counters.groundflares),
-            fore_color,
-        );
-        print(frame, y + 14, "━━━━━━━━━━━━━━━", 235);
+        // print(
+        //     frame,
+        //     y + 10,
+        //     &format!("Sparks: {}", counters.sparks),
+        //     COLOR_TEXT,
+        // );
+        // print(
+        //     frame,
+        //     y + 11,
+        //     &format!("Shapes: {}", counters.shapes),
+        //     COLOR_TEXT,
+        // );
+        // print(
+        //     frame,
+        //     y + 12,
+        //     &format!("Ground flares: {}", counters.groundflares),
+        //     COLOR_TEXT,
+        // );
+        print(frame, y + 10, "━━━━━━━━━━━━━━━", COLOR_SEPARATOR);
 
-        print(frame, y + 16, "C -> Continue", fore_color);
-        print(frame, y + 17, "N -> New game", fore_color);
-        print(frame, y + 19, "CTRL + C ->  Exit", fore_color);
+        print(frame, y + 12, "C -> Continue", COLOR_KEYS_TEXT);
+        print(frame, y + 13, "N -> New game", COLOR_KEYS_TEXT);
+        print(frame, y + 14, "W -> Go to welcome", COLOR_KEYS_TEXT);
+        print(frame, y + 16, "CTRL + C ->  Exit", COLOR_KEYS_TEXT);
 
         Ok(())
     }
