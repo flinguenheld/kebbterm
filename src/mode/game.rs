@@ -19,6 +19,8 @@ pub struct ModeGame {
     shapes: Vec<Shape>,
 
     chars: Vec<char>,
+
+    speed_option: usize,
 }
 
 impl ModeGame {
@@ -31,6 +33,7 @@ impl ModeGame {
             shapes: Vec::new(),
 
             chars: Vec::new(),
+            speed_option: 0,
         };
 
         // --
@@ -57,6 +60,7 @@ impl ModeGame {
             mode.chars.append(&mut "ÉÙÈÀÛÊÎÂÔÜËÏÆŒÇ".chars().collect());
         }
 
+        mode.speed_option = options.speed_conversion();
         mode
     }
 
@@ -95,6 +99,7 @@ impl ModeGame {
                                 // self.sparks.iter().map(|r| r.position().x).collect(),
                                 self.shapes.iter().map(|r| r.position().x).collect(),
                             ]),
+                            self.speed_option,
                         ));
                     }
 
@@ -110,6 +115,7 @@ impl ModeGame {
                                     .map(|r| r.position().x)
                                     .collect()]),
                                 selected_chars,
+                                self.speed_option,
                             ));
                         }
                     }
@@ -128,6 +134,7 @@ impl ModeGame {
                                 // self.sparks.iter().map(|r| r.position().x).collect(),
                                 self.shapes.iter().map(|r| r.position().x).collect(),
                             ]),
+                            self.speed_option,
                         ));
                     }
 
@@ -156,16 +163,22 @@ impl ModeGame {
                         if let Some(selected) =
                             take_chars(&mut self.chars, rand::thread_rng().gen_range(3, 10))
                         {
-                            self.sparks
-                                .push(Spark::new(*rocket.position().unwrap(), selected));
+                            self.sparks.push(Spark::new(
+                                *rocket.position().unwrap(),
+                                selected,
+                                self.speed_option,
+                            ));
                         };
                     }
                     _ => {
                         if let Some(selected) =
                             take_chars(&mut self.chars, rand::thread_rng().gen_range(1, 4))
                         {
-                            self.shapes
-                                .push(Shape::new(*rocket.position().unwrap(), selected));
+                            self.shapes.push(Shape::new(
+                                *rocket.position().unwrap(),
+                                selected,
+                                self.speed_option,
+                            ));
                         };
                     }
                 }

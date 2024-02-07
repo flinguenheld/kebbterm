@@ -1,5 +1,8 @@
 use std::time::Instant;
 
+/*
+ * Regroup all counters used by Game and shared to Score, including timer.
+ */
 pub struct Counters {
     pub success: u16,
     pub fails: u16,

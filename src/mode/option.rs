@@ -34,7 +34,7 @@ impl ModeOption {
                     KeyCode::Down => self.menu.down(),
                     KeyCode::Left => match self.menu.current_selection() {
                         0 => match self.options.speed {
-                            0 => self.options.speed = 5,
+                            1 => self.options.speed = 10,
                             _ => self.options.speed -= 1,
                         },
                         1 => self.options.letter = !self.options.letter,
@@ -46,7 +46,7 @@ impl ModeOption {
                     },
                     KeyCode::Right => match self.menu.current_selection() {
                         0 => match self.options.speed {
-                            5 => self.options.speed = 0,
+                            10 => self.options.speed = 1,
                             _ => self.options.speed += 1,
                         },
                         1 => self.options.letter = !self.options.letter,

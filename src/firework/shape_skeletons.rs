@@ -1,5 +1,8 @@
 use crate::geometry::Point;
 
+// Shape's skeletons
+// The first four are dedicated to the explosion.
+
 // Coordinates from 0 and the top left
 // 012345
 // 1

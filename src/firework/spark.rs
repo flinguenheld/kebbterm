@@ -33,7 +33,7 @@ pub struct Spark {
 }
 
 impl Spark {
-    pub fn new(explosion_center: Point, chars: Vec<char>) -> Spark {
+    pub fn new(explosion_center: Point, chars: Vec<char>, speed_option: usize) -> Spark {
         let mut spark = Spark {
             branches: Vec::new(),
             center: explosion_center,
@@ -46,13 +46,12 @@ impl Spark {
             speed: Speed::new(
                 Point {
                     // Fast on start
-                    // x: rand::thread_rng().gen_range(2, 8),
-                    x: rand::thread_rng().gen_range(20, 50),
+                    x: rand::thread_rng().gen_range(10, 15),
                     y: 2,
                 },
                 Point {
                     // Slow at the end
-                    x: rand::thread_rng().gen_range(170, 190),
+                    x: rand::thread_rng().gen_range(170 + speed_option, 190 + speed_option),
                     y: 8,
                 },
             ),

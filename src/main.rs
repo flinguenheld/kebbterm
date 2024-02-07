@@ -18,7 +18,7 @@ fn main() -> io::Result<()> {
     let mut counters = Counters::new();
 
     let mut mode = Mode::Welcome;
-    let mut mode_game = ModeGame::new();
+    let mut mode_game = ModeGame::new(); // TODO: ugly
     let mut mode_option = ModeOption::new();
     let mut mode_score = ModeScore::new();
     let mut mode_welcome = ModeWelcome::new();
@@ -55,7 +55,7 @@ fn main() -> io::Result<()> {
 
         // --
         let _ = s.send(frame);
-        thread::sleep(Duration::from_millis(2));
+        thread::sleep(Duration::from_millis(1));
     }
 
     // Cleanup --

@@ -3,7 +3,10 @@ use std::io::prelude::*;
 
 const FILE_NAME: &str = "src/files/.options.txt";
 
-#[derive(Debug)]
+/*
+ * Read/write in a files all kebbterm opions.
+ * Convert the speed value to speed tick used by Speed struct.
+ */
 pub struct Options {
     pub speed: u8,
     pub letter: bool,
@@ -15,9 +18,24 @@ pub struct Options {
 }
 
 impl Options {
+    pub fn speed_conversion(&self) -> usize {
+        match self.speed {
+            1 => 600,
+            2 => 500,
+            3 => 400,
+            4 => 300,
+            5 => 200,
+            6 => 100,
+            7 => 75,
+            8 => 50,
+            9 => 25,
+            _ => 0,
+        }
+    }
+
     pub fn new() -> Options {
         let mut options = Options {
-            speed: 0,
+            speed: 7,
             letter: true,
             capital: true,
             digit: true,

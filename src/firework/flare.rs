@@ -26,22 +26,26 @@ pub struct GroundFlare {
     flare_nb_max: u16,
     position: Point,
     nb_success: u16,
+
+    speed_option: usize,
 }
 
 impl GroundFlare {
-    pub fn new(position: Point, characters: Vec<char>) -> GroundFlare {
+    pub fn new(position: Point, characters: Vec<char>, speed_opt: usize) -> GroundFlare {
         let ground_flare = GroundFlare {
             flares: Vec::new(),
             chars: characters,
 
             loop_counter: 0,
-            loop_counter_step: rand::thread_rng().gen_range(100, 150),
+            loop_counter_step: rand::thread_rng()
+                .gen_range(250 + speed_opt as u32, 280 + speed_opt as u32),
             position,
 
             flare_counter: 0,
             flare_nb_max: rand::thread_rng().gen_range(25, 40),
 
             nb_success: 0,
+            speed_option: speed_opt,
         };
 
         ground_flare
@@ -94,6 +98,7 @@ impl Run for GroundFlare {
                 self.position,
                 self.chars
                     .remove(rand::thread_rng().gen_range(0, self.chars.len())),
+                self.speed_option,
             ));
 
             self.loop_counter = 1;
@@ -110,9 +115,6 @@ impl Run for GroundFlare {
 
 impl Drawable for GroundFlare {
     fn draw(&self, frame: &mut Frame) {
-        // frame[NB_ROWS - 1][self.position_x].value = '🭩';
-        // frame[NB_ROWS - 1][self.position_x].fore_color = style::Color::AnsiValue(240);
-
         for f in &self.flares {
             f.draw(frame);
         }
@@ -134,19 +136,19 @@ struct Flare {
 }
 
 impl Flare {
-    fn new(position: Point, value: char) -> Flare {
+    fn new(position: Point, value: char, speed_opt: usize) -> Flare {
         Flare {
             tail: Tail::new(value, position, vec![147, 141, 135, 129, 91]),
 
             speed: Speed::new(
                 Point {
                     // Fast at the bottom
-                    x: rand::thread_rng().gen_range(12, 20),
+                    x: rand::thread_rng().gen_range(15, 20),
                     y: NB_ROWS - 1,
                 },
                 Point {
                     // Slow at the top
-                    x: rand::thread_rng().gen_range(70, 85),
+                    x: rand::thread_rng().gen_range(150 + speed_opt, 170 + speed_opt),
                     y: 10,
                 },
             ),

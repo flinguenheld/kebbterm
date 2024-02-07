@@ -8,6 +8,14 @@ use crate::{
 use crossterm::style::{self};
 use rand::Rng;
 
+/*
+ * Shape is a spark with a skeleton. There a two steps:
+ *   - Explosion (a succession of shapes)
+ *   - Fade until disapearance
+ *
+ * It takes a bunch of letters and uses them several times to fill the skeleton.
+ * The user has to press all of them.
+ */
 pub struct Shape {
     current_skeleton: Vec<(Point, char, bool)>,
     characters: Vec<char>,
@@ -22,7 +30,7 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn new(explosion_center: Point, chars: Vec<char>) -> Shape {
+    pub fn new(explosion_center: Point, chars: Vec<char>, speed_option: usize) -> Shape {
         Shape {
             current_skeleton: Vec::new(),
             characters: chars,
@@ -38,12 +46,12 @@ impl Shape {
             speed: Speed::new(
                 Point {
                     // Fast on start
-                    x: rand::thread_rng().gen_range(20, 25),
+                    x: rand::thread_rng().gen_range(40, 55),
                     y: 20,
                 },
                 Point {
                     // Slow at the end
-                    x: rand::thread_rng().gen_range(180, 190),
+                    x: rand::thread_rng().gen_range(180 + speed_option, 190 + speed_option),
                     y: 2,
                 },
             ),
@@ -128,11 +136,9 @@ impl Run for Shape {
             match self.explosion_step {
                 s if s < 5 => {
                     self.upload_skeleton(self.explosion_step as usize);
-                    // self.explosion_step += 1;
                 }
                 5 => {
                     self.upload_skeleton(rand::thread_rng().gen_range(5, 12));
-                    // self.explosion_step = 255;
                 }
                 _ => {}
             }
