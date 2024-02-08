@@ -16,9 +16,8 @@ fn main() -> io::Result<()> {
     stdout.execute(cursor::Hide)?;
 
     let mut counters = Counters::new();
-
     let mut mode = Mode::Welcome;
-    let mut mode_game = ModeGame::new(); // TODO: ugly
+    let mut mode_game = ModeGame::new();
     let mut mode_option = ModeOption::new();
     let mut mode_score = ModeScore::new();
     let mut mode_welcome = ModeWelcome::new();
