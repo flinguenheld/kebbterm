@@ -39,7 +39,7 @@ fn main() -> io::Result<()> {
 
         match mode {
             Mode::Game(new) => {
-                if new == true {
+                if new {
                     counters = Counters::new();
                     mode_game = ModeGame::new();
                     mode = Mode::Game(false);

@@ -121,38 +121,36 @@ impl Run for Spark {
                     branch.is_dying = true;
                 }
 
-                if branch.is_dying == true {
+                if branch.is_dying {
                     branch.tail.pop();
-                } else {
-                    if let Some(current) = branch.tail.current_position() {
-                        let mut new_position = Point { ..*current };
+                } else if let Some(current) = branch.tail.current_position() {
+                    let mut new_position = Point { ..*current };
 
-                        match branch.trajectory {
-                            1 => new_position.plus_x(),
-                            2 => {
-                                new_position.plus_x();
-                                new_position.plus_y();
-                            }
-                            3 => new_position.plus_y(),
-                            4 => {
-                                new_position.minus_x();
-                                new_position.plus_y();
-                            }
-                            5 => new_position.minus_x(),
-                            6 => {
-                                new_position.minus_x();
-                                new_position.minus_y();
-                            }
-                            7 => new_position.minus_y(),
-                            8 => {
-                                new_position.plus_x();
-                                new_position.minus_y();
-                            }
-                            _ => {}
+                    match branch.trajectory {
+                        1 => new_position.plus_x(),
+                        2 => {
+                            new_position.plus_x();
+                            new_position.plus_y();
                         }
-
-                        branch.tail.push(new_position);
+                        3 => new_position.plus_y(),
+                        4 => {
+                            new_position.minus_x();
+                            new_position.plus_y();
+                        }
+                        5 => new_position.minus_x(),
+                        6 => {
+                            new_position.minus_x();
+                            new_position.minus_y();
+                        }
+                        7 => new_position.minus_y(),
+                        8 => {
+                            new_position.plus_x();
+                            new_position.minus_y();
+                        }
+                        _ => {}
                     }
+
+                    branch.tail.push(new_position);
                 }
             }
 

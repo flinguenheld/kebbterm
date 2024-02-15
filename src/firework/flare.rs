@@ -32,7 +32,7 @@ pub struct GroundFlare {
 
 impl GroundFlare {
     pub fn new(position: Point, characters: Vec<char>, speed_opt: usize) -> GroundFlare {
-        let ground_flare = GroundFlare {
+        GroundFlare {
             flares: Vec::new(),
             chars: characters,
 
@@ -46,9 +46,7 @@ impl GroundFlare {
 
             nb_success: 0,
             speed_option: speed_opt,
-        };
-
-        ground_flare
+        }
     }
 
     pub fn position(&self) -> Point {
@@ -59,12 +57,12 @@ impl GroundFlare {
 impl Check for GroundFlare {
     fn check_value(&mut self, val: &char) -> bool {
         for f in self.flares.iter_mut().filter(|f| !f.done) {
-            if f.check_value(val) == true {
+            if f.check_value(val) {
                 self.nb_success += 1;
                 return true;
             }
         }
-        return false;
+        false
     }
 }
 
@@ -179,7 +177,7 @@ impl Flare {
             if let Some(current) = self.tail.current_position() {
                 self.speed.up_by_x(current.y as f32);
 
-                if current.y <= self.max_row || self.done == true {
+                if current.y <= self.max_row || self.done {
                     self.tail.pop();
                 } else {
                     let mut new_position = Point {

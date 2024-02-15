@@ -48,7 +48,7 @@ impl Options {
             let mut txt = String::new();
             let _ = file.read_to_string(&mut txt);
 
-            for (i, data) in txt.split("\n").enumerate() {
+            for (i, data) in txt.split('\n').enumerate() {
                 match i {
                     0 => options.speed = data.parse::<u8>().unwrap_or(0),
                     1 => options.letter = data.parse::<bool>().unwrap_or(true),
@@ -69,13 +69,13 @@ impl Options {
         // let mut f = File::options().write(true).truncate(true).open(FILE_NAME)?;
         let mut f = File::create(FILE_NAME)?;
 
-        writeln!(&mut f, "{}", self.speed.to_string())?;
-        writeln!(&mut f, "{}", self.letter.to_string())?;
-        writeln!(&mut f, "{}", self.capital.to_string())?;
-        writeln!(&mut f, "{}", self.digit.to_string())?;
-        writeln!(&mut f, "{}", self.symbol.to_string())?;
-        writeln!(&mut f, "{}", self.french.to_string())?;
-        writeln!(&mut f, "{}", self.french_cap.to_string())?;
+        writeln!(&mut f, "{}", self.speed)?;
+        writeln!(&mut f, "{}", self.letter)?;
+        writeln!(&mut f, "{}", self.capital)?;
+        writeln!(&mut f, "{}", self.digit)?;
+        writeln!(&mut f, "{}", self.symbol)?;
+        writeln!(&mut f, "{}", self.french)?;
+        writeln!(&mut f, "{}", self.french_cap)?;
 
         Ok(())
     }

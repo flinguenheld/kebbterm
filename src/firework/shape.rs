@@ -110,18 +110,18 @@ impl Check for Shape {
             }
         }
 
-        return ok;
+        ok
     }
 }
 
 impl Run for Shape {
     fn is_done(&self) -> Option<(Vec<char>, u16)> {
         if self.colors.is_empty() {
-            let misses = self.current_skeleton.iter().count()
+            let misses = self.current_skeleton.len()
                 - self
                     .current_skeleton
                     .iter()
-                    .filter(|(_, _, done)| *done == true)
+                    .filter(|(_, _, done)| *done)
                     .count();
             Some((self.characters.clone(), misses as u16))
         } else {
@@ -135,7 +135,7 @@ impl Run for Shape {
 
             match self.explosion_step {
                 s if s < 5 => {
-                    self.upload_skeleton(self.explosion_step as usize);
+                    self.upload_skeleton(self.explosion_step);
                 }
                 5 => {
                     self.upload_skeleton(rand::thread_rng().gen_range(5, 12));

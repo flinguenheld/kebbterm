@@ -210,19 +210,20 @@ impl ModeGame {
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Check ---
-fn check_value(element: &mut Vec<impl Check>, val: &char, counter: &mut u16) -> bool {
+fn check_value(element: &mut [impl Check], val: &char, counter: &mut u16) -> bool {
     for e in element.iter_mut() {
-        if e.check_value(&val) {
+        if e.check_value(val) {
             *counter += 1;
             return true;
         }
     }
-    return false;
+    false
 }
 
 // ----------------------------------------------------------------------------
 // --------------------------------------------------------- Run & Drawable ---
-fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
+// fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
+fn run_draw(elements: &mut [impl Run + Drawable], frame: &mut Frame) {
     elements.iter_mut().for_each(|f| {
         f.run();
         f.draw(frame)

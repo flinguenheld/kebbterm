@@ -71,9 +71,9 @@ pub fn print(frame: &mut Frame, y: usize, text: &str, color: u8) {
 }
 
 pub fn paint(frame: &mut Frame, x: usize, y: usize, height: usize, width: usize, color: u8) {
-    for row in y..(y + height) {
-        for col in x..(x + width) {
-            frame[row][col].back_color = style::Color::AnsiValue(color);
+    for row in frame.iter_mut().skip(y).take(height) {
+        for case in row.iter_mut().skip(x).take(width) {
+            case.back_color = style::Color::AnsiValue(color);
         }
     }
 }

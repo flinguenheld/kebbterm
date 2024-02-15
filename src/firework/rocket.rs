@@ -20,7 +20,7 @@ pub struct Rocket {
 
 impl Rocket {
     pub fn new(symbol: char, colors: Vec<u8>, position: Point, speed_option: usize) -> Rocket {
-        let rocket = Rocket {
+        Rocket {
             tail: Tail::new(symbol, position, colors),
             speed: Speed::new(
                 Point {
@@ -36,9 +36,7 @@ impl Rocket {
                 },
             ),
             explosion_row: rand::thread_rng().gen_range(8, NB_ROWS / 2 + 2),
-        };
-
-        rocket
+        }
     }
 
     pub fn symbol(&self) -> char {
