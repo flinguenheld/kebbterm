@@ -11,6 +11,11 @@ use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use rand::Rng;
 use std::{collections::HashSet, io, time::Duration};
 
+/// Main KebbTerm mode.  
+/// Create a buffer of char according to options.  
+/// Share these chars with fireworks and get back them.  
+/// Create/run/delete all fireworks according to key events.  
+/// Also update counters.  
 pub struct ModeGame {
     rockets: Vec<Rocket>,
 
@@ -210,6 +215,7 @@ impl ModeGame {
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Check ---
+/// Check if the value has been share to one element and if it is still available.
 fn check_value(element: &mut [impl Check], val: &char, counter: &mut u16) -> bool {
     for e in element.iter_mut() {
         if e.check_value(val) {
@@ -222,7 +228,7 @@ fn check_value(element: &mut [impl Check], val: &char, counter: &mut u16) -> boo
 
 // ----------------------------------------------------------------------------
 // --------------------------------------------------------- Run & Drawable ---
-// fn run_draw(elements: &mut Vec<impl Run + Drawable>, frame: &mut Frame) {
+/// Run elements.
 fn run_draw(elements: &mut [impl Run + Drawable], frame: &mut Frame) {
     elements.iter_mut().for_each(|f| {
         f.run();
@@ -230,8 +236,8 @@ fn run_draw(elements: &mut [impl Run + Drawable], frame: &mut Frame) {
     });
 }
 
-// Check if all elements are done, if so, put their chars in the buffer and remove them.
-// Also get the amount of misses counted by the elements themselves.
+/// Check if all elements are done, if so, put their chars in the buffer and remove them.  
+/// Also get the amount of misses counted by the elements themselves.
 fn get_char_back(chars: &mut Vec<char>, elements: &mut Vec<impl Run>, misses: &mut u16) {
     elements.retain_mut(|f| {
         if let Some((mut characters, nb_misses)) = f.is_done() {
@@ -244,7 +250,7 @@ fn get_char_back(chars: &mut Vec<char>, elements: &mut Vec<impl Run>, misses: &m
     });
 }
 
-// Pick an amount up of char in the buffer.
+/// Pick an amount up of char in the buffer.
 fn take_chars(chars: &mut Vec<char>, amount: usize) -> Option<Vec<char>> {
     if amount <= chars.len() {
         Some(
@@ -259,8 +265,8 @@ fn take_chars(chars: &mut Vec<char>, amount: usize) -> Option<Vec<char>> {
 
 // ----------------------------------------------------------------------------
 // --------------------------------------------------------------- Position ---
-// List all x values which aren't close to all element's x values.
-// Then return randomly one point.
+/// List all x values which aren't close to all element's x values.  
+/// Then return randomly one point.
 fn find_free_position(busy_x: Vec<Vec<usize>>) -> Point {
     let mut slots: HashSet<usize> = (10..(NB_COLS - 10)).collect();
 

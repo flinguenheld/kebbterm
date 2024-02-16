@@ -1,3 +1,5 @@
+//! Regroup shared elements by modes.
+
 use crossterm::style;
 
 use crate::geometry::NB_COLS;
@@ -5,6 +7,10 @@ use crate::render::frame::Frame;
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------- Menu ---
+/// Allows you to manage a menu.  
+/// Give it all fields and link `up` and `down` to [CrossTerm](https://docs.rs/crossterm/latest/crossterm/)
+/// events.  
+/// Then use the function [print_menu](`crate::mode::utils::print_menu`) to update the current frame.
 pub struct Menu {
     fields: Vec<String>,
     current: usize,
@@ -43,6 +49,8 @@ impl Menu {
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Print ---
+
+/// Easily print a menu on the given [Frame](crate::render::frame).
 pub fn print_menu(
     menu: &Menu,
     frame: &mut Frame,
@@ -62,6 +70,7 @@ pub fn print_menu(
     y
 }
 
+/// Print a text on the given frame in the given position.
 pub fn print(frame: &mut Frame, y: usize, text: &str, color: u8) {
     let start_x = NB_COLS / 2 - text.chars().count() / 2 - 1;
     for (x, c) in text.chars().enumerate() {
@@ -70,6 +79,7 @@ pub fn print(frame: &mut Frame, y: usize, text: &str, color: u8) {
     }
 }
 
+/// Draw a rectangle on the given frame.
 pub fn paint(frame: &mut Frame, x: usize, y: usize, height: usize, width: usize, color: u8) {
     for row in frame.iter_mut().skip(y).take(height) {
         for case in row.iter_mut().skip(x).take(width) {
@@ -80,6 +90,7 @@ pub fn paint(frame: &mut Frame, x: usize, y: usize, height: usize, width: usize,
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Trait ---
+/// Update the given frame with current struct values.  
 pub trait Drawable {
     fn draw(&self, frame: &mut Frame);
 }

@@ -1,8 +1,12 @@
+/// Window height.
 pub const NB_ROWS: usize = 40;
+/// Window width.
 pub const NB_COLS: usize = 120;
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Point ---
+/// Simple point with x, y.  
+/// Use methods to stay in the [frame](`crate::render::frame`)
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: usize,
@@ -80,14 +84,15 @@ impl ColorRGB {
 }
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Speed ---
-/*
- * Speed is measured by ticks. Each game loop counts +1 tick and each element
- * moves according to a sum of ticks.
- * This struct allows you to have a variable speed.
- * Give two points of a line (slow & fast speed) and update the current speed
- * value by x or y. (y = mx + b)
- * Then use functions 'up_tick' and 'reached' to move your elements.
- */
+
+/// Speed is measured by ticks. Each game loop counts +1 tick and each element
+/// moves according to a sum of ticks.  
+///
+/// This struct allows you to have a variable speed.  
+/// Give two points of a line (slow & fast speed) and update the current speed
+/// value by x or y. (y = mx + b)  
+///
+/// Then use functions 'up_tick' and 'reached' to move your elements.
 pub struct Speed {
     m: f32,
     b: f32,
@@ -111,16 +116,22 @@ impl Speed {
         speed
     }
 
+    /// Update speed with a value on X.
     pub fn up_by_x(&mut self, y: f32) {
         self.current_speed = ((y - self.b) / self.m) as u32;
     }
+    /// Update speed with a value on Y.
     pub fn up_by_y(&mut self, x: f32) {
         self.current_speed = (self.m * x + self.b) as u32;
     }
 
+    /// Tick counter += 1.
     pub fn up_tick(&mut self) {
         self.tick_count += 1;
     }
+
+    /// Check if the tick counter has reached the current speed value.  
+    /// If true, reset the tick counter.
     pub fn reached(&mut self) -> bool {
         if self.tick_count >= self.current_speed {
             self.tick_count = 1;

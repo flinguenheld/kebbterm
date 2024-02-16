@@ -8,14 +8,13 @@ use crate::{
 use crossterm::style::{self};
 use rand::Rng;
 
-/*
- * Shape is a spark with a skeleton. There a two steps:
- *   - Explosion (a succession of shapes)
- *   - Fade until disapearance
- *
- * It takes a bunch of letters and uses them several times to fill the skeleton.
- * The user has to press all of them.
- */
+/// Shape is a kind of spark with a skeleton with two steps:
+/// - Explosion (a succession of shapes).  
+/// - Fade until its disapearance.  
+///
+/// It takes a group of letters and uses them several times to fill a
+/// [shape skeleton](`crate::firework::shape_skeletons`).  
+/// The user has to press all of them to complete the shape.
 pub struct Shape {
     current_skeleton: Vec<(Point, char, bool)>,
     characters: Vec<char>,
@@ -82,6 +81,7 @@ impl Shape {
             .collect();
     }
 
+    /// Shape's center.
     pub fn position(&self) -> Point {
         self.center
     }

@@ -1,6 +1,7 @@
 use crate::geometry::{NB_COLS, NB_ROWS};
 use crossterm::style;
 
+/// Regroup information for one case.
 #[derive(Copy, Clone)]
 pub struct FrameCase {
     pub value: char,
@@ -8,6 +9,8 @@ pub struct FrameCase {
     pub back_color: style::Color,
 }
 
+/// Represent the mode (window) area.  
+/// Size is fixed in [`crate::geometry`].
 pub type Frame = [[FrameCase; NB_COLS]; NB_ROWS];
 
 pub fn new_frame() -> Frame {

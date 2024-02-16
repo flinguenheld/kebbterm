@@ -14,13 +14,10 @@ struct Branch {
     is_dying: bool,
 }
 
-/*
- * Spark contains a group of Branches (9 maxi).
- * It allows you to move and display them.
- * A bunch of chars have to be done in the constructor.
- * Use the trait 'is_done' to get them back when all branches are done.
- * Lifetime is counted by 'max_move', moves are counted by 'speed'.
- */
+/// Spark creates one `Branches` per char given (9 maxi).  
+/// Each branch contains a [Tail](`crate::firework::tail`).  
+/// Use the trait 'is_done' to get them back when all branches are done.  
+/// Lifetime is counted by 'max_move', moves are counted by 'speed'.  
 pub struct Spark {
     branches: Vec<Branch>,
     speed: Speed,
@@ -79,6 +76,7 @@ impl Spark {
         spark
     }
 
+    /// Spark's center.
     pub fn position(&self) -> Point {
         self.center
     }

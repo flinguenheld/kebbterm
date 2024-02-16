@@ -5,6 +5,7 @@ pub mod score;
 pub mod utils;
 pub mod welcome;
 
+/// Used by the game loop to navigate.
 pub enum Mode {
     Game(bool),
     Option,
@@ -13,6 +14,7 @@ pub enum Mode {
     Welcome,
 }
 
+/// Color const used by all modes.
 const COLOR_TITLE: u8 = 214;
 const COLOR_TEXT: u8 = 250;
 const COLOR_BACKGROUND: u8 = 236;

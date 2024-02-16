@@ -8,6 +8,8 @@ use crate::{
 use crossterm::event::{self, Event, KeyCode};
 use std::{io, time::Duration};
 
+/// This mode builds a [Menu](`crate::mode::utils::Menu`) from options which allows
+/// the user to see and update the [option file](`crate::files::option`).  
 pub struct ModeOption {
     menu: Menu,
     options: Options,

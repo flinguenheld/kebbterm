@@ -8,6 +8,7 @@ use crate::{
 use crossterm::event::{self, Event, KeyCode};
 use std::{io, time::Duration};
 
+/// Display the timer, scores and a menu.
 pub struct ModeScore {
     menu: Menu,
 }

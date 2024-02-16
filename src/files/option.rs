@@ -1,13 +1,13 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-const FILE_NAME: &str = "src/files/.options.txt";
+const FILE_NAME: &str = ".options.kt";
 
-/*
- * Read/write in a files all kebbterm opions.
- * Convert the speed value to speed tick used by Speed struct.
- */
+/// Read/write in a file all options.  
+/// File is read at the struct creation, use [write](`Options::write`) to save new values.  
+/// See [`crate::mode::option`] for the associated window.
 pub struct Options {
+    /// From 1 to 10, speed is converted in "ticks" by [`Options::speed_conversion`].
     pub speed: u8,
     pub letter: bool,
     pub capital: bool,
@@ -18,6 +18,8 @@ pub struct Options {
 }
 
 impl Options {
+    /// Return an amount of "ticks" which are used by [`crate::firework`] to adapt  
+    /// charater moves. See [`crate::geometry::Speed`].
     pub fn speed_conversion(&self) -> usize {
         match self.speed {
             1 => 600,
@@ -65,6 +67,7 @@ impl Options {
         options
     }
 
+    /// Overwrite option file with current values.
     pub fn write(&self) -> std::io::Result<()> {
         // let mut f = File::options().write(true).truncate(true).open(FILE_NAME)?;
         let mut f = File::create(FILE_NAME)?;

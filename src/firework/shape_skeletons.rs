@@ -1,14 +1,14 @@
 use crate::geometry::Point;
 
-// Shape's skeletons
-// The first four are dedicated to the explosion.
-
-// Coordinates from 0 and the top left
-// 012345
-// 1
-// 2
-// 3
-// 4
+/// Shape's skeletons   
+/// The first four are dedicated to the explosion.   
+///
+/// Coordinates from 0 and the top left   
+/// 0 1 2 3 4 5  
+/// 1 . . . . .   
+/// 2 . . . . .   
+/// 3 . . . . .   
+/// 4 . . . . .   
 pub fn skeleton(nb: usize) -> Vec<Point> {
     match nb {
         0 => vec![

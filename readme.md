@@ -29,3 +29,13 @@ Launch it and have fun:
 ```
 cargo build --release && cargo run
 ```
+
+---
+
+### Documentation
+
+You can generate it with the command:
+
+```
+cargo doc --no-deps --open
+```

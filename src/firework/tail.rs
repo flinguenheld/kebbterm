@@ -2,11 +2,9 @@ use crate::{geometry::Point, render::frame::Frame};
 use crossterm::style;
 use std::collections::VecDeque;
 
-/*
- * Display a 'tail' of one char.
- * Give it the next position and use the function 'draw' to update the frame.
- * Tail has the given color vector length.
- */
+/// Display a 'tail' of one char.  
+/// Give it the next position and use the function 'draw' to update the frame.  
+/// Tail's length is equal to its color's length.  
 pub struct Tail {
     pub value: char,
     positions: VecDeque<Point>,
@@ -22,6 +20,7 @@ impl Tail {
         }
     }
 
+    /// Add the next position.
     pub fn push(&mut self, point: Point) {
         self.positions.push_front(point);
         if self.positions.len() > self.colors.len() {
@@ -29,6 +28,7 @@ impl Tail {
         }
     }
 
+    /// Update tail's colors.
     pub fn set_color(&mut self, mut new_colors: Vec<u8>) {
         while new_colors.len() > self.colors.len() {
             new_colors.pop();
@@ -37,10 +37,12 @@ impl Tail {
         self.colors = new_colors;
     }
 
+    /// Current position (top of the tail).
     pub fn current_position(&self) -> Option<&Point> {
         self.positions.front()
     }
 
+    /// Remove last char.
     pub fn pop(&mut self) {
         self.positions.pop_back();
     }
@@ -49,6 +51,7 @@ impl Tail {
         self.positions.is_empty()
     }
 
+    /// Add the tail in the given [`crate::render::frame::Frame`].
     pub fn draw(&self, frame: &mut Frame) {
         for (pt, color) in self.positions.iter().rev().zip(self.colors.iter().rev()) {
             frame[pt.y][pt.x].value = self.value;

@@ -7,6 +7,7 @@ use crossterm::{
 };
 use std::io::{self, Write};
 
+/// Render initialization. Use it one time on startup.
 pub fn render_init() {
     let mut stdout = io::stdout();
 
@@ -17,6 +18,9 @@ pub fn render_init() {
     stdout.queue(Clear(ClearType::All)).unwrap();
 }
 
+/// Loop in the given frame and update the [CrossTerm](https://docs.rs/crossterm/latest/crossterm/)
+/// output.  
+/// Use it in a thread to improve performances.
 pub fn render(frame: &Frame, previous_frame: &Frame) {
     let mut stdout = io::stdout();
     for row in 0..frame.len() {

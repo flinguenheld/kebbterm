@@ -9,12 +9,10 @@ use rand::Rng;
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------ GroundFlare ---
-/*
- * From a given stock of chars, this struct launches a randomised amount of Flares.
- * All flares are started regulary and each char is recovered at
- * the flare remove to be reused.
- * Once the amount is reached, use the function 'is_done' to get the chars back.
- */
+
+/// From a given stock of chars, this struct launches a randomised amount of Flares.  
+/// All flares are started regulary and each char is recovered at the flare remove to be reused.  
+/// Once the amount has been reached, use the trait [is_done](`GroundFlare::is_done`) to get the chars back.   
 pub struct GroundFlare {
     flares: Vec<Flare>,
     chars: Vec<char>,
@@ -121,10 +119,9 @@ impl Drawable for GroundFlare {
 
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------ Flare ---
-/*
- * A Flare is a tail with specifics parameters (speed, direction ...).
- * Only useful with GroundFlare.
- */
+
+// A Flare is a tail with specifics parameters (speed, direction ...).
+// Only useful with GroundFlare.
 struct Flare {
     tail: Tail,
     speed: Speed,

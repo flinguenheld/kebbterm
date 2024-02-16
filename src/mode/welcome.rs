@@ -7,6 +7,7 @@ use crate::{
 use crossterm::event::{self, Event, KeyCode};
 use std::{io, time::Duration};
 
+/// Display a menu and send to main the next mode.
 pub struct ModeWelcome {
     menu: Menu,
 }

@@ -8,6 +8,7 @@ use std::{
     time::Duration,
 };
 
+/// Launch [Crossterm](https://docs.rs/crossterm/latest/crossterm/) and manage the game loop.
 fn main() -> io::Result<()> {
     // Setup --
     let mut stdout = io::stdout();

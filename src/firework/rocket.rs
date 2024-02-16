@@ -7,11 +7,10 @@ use crate::{
 };
 use rand::Rng;
 
-/*
- * See the yellow !
- * Rocket is a tail which aims to explode at a randomised row.
- * The explosion and the spark creation are managed by main.
- */
+/// See the yellow !  
+/// Rocket is a [Tail](`crate::firework::tail`) which aims to explode at a randomised row.  
+/// The explosion and the [spark](`crate::firework::spark`) or [shape](`crate::firework::shape`)
+/// creations are managed by [`crate::mode::game`].
 pub struct Rocket {
     tail: Tail,
     speed: Speed,
@@ -39,14 +38,17 @@ impl Rocket {
         }
     }
 
+    /// Tail's value.
     pub fn symbol(&self) -> char {
         self.tail.value
     }
 
+    /// Tail's current position.
     pub fn position(&self) -> Option<&Point> {
         self.tail.current_position()
     }
 
+    /// Has it reached the explosion row ?
     pub fn exploded(&self) -> bool {
         if let Some(position) = self.tail.current_position() {
             position.y <= self.explosion_row
